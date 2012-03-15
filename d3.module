@@ -1,0 +1,24 @@
+<?php
+function d3_load() {
+
+	if ($path = libraries_get_path('d3')) {
+		// Do something with the library, knowing the path, for instance:
+		drupal_add_js($path . '/d3.v2.js');
+		drupal_add_js(drupal_get_path('module', 'd3') .'/js/d3.extend.js');
+		drupal_add_css(drupal_get_path('module', 'd3').'/d3.css');
+		module_load_include('php', 'd3', '/inc/visualization.class');
+	} 
+		else { return drupal_set_message('The d3 library is needed to use this module', 'error');
+	}
+	
+}
+
+function d3_draw($chart) {
+
+	d3_load();
+
+	$visualization = new Visualization($chart);
+	
+	return $visualization->render();
+}
+
