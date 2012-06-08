@@ -1,24 +1,130 @@
 <?php
 function d3_load() {
 
-	if ($path = libraries_get_path('d3')) {
-		// Do something with the library, knowing the path, for instance:
-		drupal_add_js($path . '/d3.v2.js');
-		drupal_add_js(drupal_get_path('module', 'd3') .'/js/d3.extend.js');
-		drupal_add_css(drupal_get_path('module', 'd3').'/d3.css');
-		module_load_include('php', 'd3', '/inc/visualization.class');
-	} 
-		else { return drupal_set_message('The d3 library is needed to use this module', 'error');
-	}
-	
+  if ($path = libraries_get_path('d3')) {
+    // Do something with the library, knowing the path, for instance:
+    drupal_add_js($path . '/d3.v2.js', array('group' => JS_LIBRARY, 'weight' => 24));
+    drupal_add_js(drupal_get_path('module', 'd3') .'/js/d3.extend.js', array('group' => JS_LIBRARY, 'weight' => 25));
+//    drupal_add_js('http://mbostock.github.com/d3/d3.geom.js', 'external');
+//    drupal_add_js('http://mbostock.github.com/d3/d3.layout.js', 'external');
+    drupal_add_css(drupal_get_path('module', 'd3').'/d3.css');
+    module_load_include('php', 'd3', '/inc/Visualization.class');
+    module_load_include('php', 'd3', '/inc/LineGraph.class');
+    module_load_include('php', 'd3', '/inc/BarGraph.class');
+    module_load_include('php', 'd3', '/inc/ForceDirectedGraph.class');
+    
+  } 
+  else { 
+    return drupal_set_message('The d3 library is needed to use this module', 'error');
+  }
+
 }
 
 function d3_draw($chart) {
 
-	d3_load();
+  d3_load();
 
-	$visualization = new Visualization($chart);
-	
-	return $visualization->render();
+  $type = $chart['type'];
+  if (class_exists($type)) {
+    $visualization = new $type($chart);
+    return $visualization->render();
+  }
+  else {
+    drupal_set_message(t('Invalid chart type !type', array('!type' => $type)));
+    return '';
+  }
+
 }
 
+function d3_graphapi_formats() {
+  return array(
+    'd3' => t('D3'),
+  );
+}
+
+function d3_graphapi_settings_form($values) {
+ 
+  $engine = 'd3'; 
+  $form[$engine] = array(
+    '#type' => 'fieldset',
+    '#title' => 'D3 settings',
+  );
+
+  return $form;
+  
+}
+
+function d3_theme() {
+  return array(
+    'd3_graphapi' => array(
+      'variables' => array(
+        'graph' => NULL,
+        'config' => NULL,
+      ),
+    ),
+  );
+} 
+
+function _d3_graphapi_format_graph_data($graph) {
+  $data = array();
+  $indices = array();
+  $index = 0;
+
+  foreach ($graph as $id => $node) {
+    $indices[$id] = $index;
+    $index++;
+  }
+
+  // add in edges
+  foreach ($graph as $id => $node) {
+    $index = $indices[$id];
+    $data['nodes'][$index] = array(
+      'name' => $node['data']['title'],
+      'group' => isset($node['data']['group']) ? $node['data']['group'] : 1,
+      'data' => $node['data'],
+    );
+    if(count($node['edges']) > 0) {
+      foreach($node['edges'] as $edge=>$edge_data) {
+        $value = (int) $edge_data['data']['value'];
+
+        $data['links'][] = array(
+          'data' => $edge_data['data'],
+          'source' => $index,
+          'target' => $indices[$edge],
+          'value' => $value, //TODO hard coded should be dynamic
+        );
+      }
+    }
+  }
+
+  return $data;
+}
+
+function theme_d3_graphapi($vars) {
+  $graph = _d3_graphapi_format_graph_data($vars['graph']);
+  $chart = array(
+    'type' => 'ForceDirectedGraph',
+    'links' => $graph['links'],
+    'nodes' => $graph['nodes'],
+    'config' => $vars['config'],
+  );
+  return d3_draw($chart);
+}
+
+/**
+ * Implements hook_graphapi_default_settings().
+ *
+ * We reuse the default settings from thejit_forcedirected_default_settings.
+ *
+ * @see thejit_forcedirected_default_settings()
+ * @see views_object::option_definition()
+ */
+function d3_graphapi_default_settings() {
+  $engine = 'd3';
+  $values = array();
+  return graphapi_settings_to_views($engine, $values);
+}
+
+function template_preprocess_views_graphapi_style_d3(&$vars) {
+  dsm($vars);
+}

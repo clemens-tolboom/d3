@@ -1,7 +1,5 @@
 
 svg {
-  width: 960px;
-  height: 500px;
   font: 10px sans-serif;
 }
 
@@ -19,3 +17,11 @@ path.line {
 
 .legend text { font-size:14px; }
 
+
+circle.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+line.link {
+}
