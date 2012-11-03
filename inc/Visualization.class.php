@@ -37,8 +37,9 @@ class Visualization {
 
   public function render() {
 
-    if($this->templateFile)
+    if($this->templateFile) {
       $this->js_build($this->loadTemplate());
+    }
 
     // render the container that was set and ALL of the javascript that has been accumulated	
     return $this->container() . $this->script($this->js);
