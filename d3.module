@@ -10,7 +10,7 @@ function d3_load() {
     drupal_add_css(drupal_get_path('module', 'd3').'/d3.css');
     module_load_include('php', 'd3', '/inc/Visualization.class');
     module_load_include('php', 'd3', '/inc/LineGraph.class');
-    module_load_include('php', 'd3', '/inc/BarGraph.class');
+    module_load_include('php', 'd3', '/inc/ColumnChart.class');
     module_load_include('php', 'd3', '/inc/ForceDirectedGraph.class');
     
   } 
@@ -85,10 +85,10 @@ function _d3_graphapi_format_graph_data($graph) {
     );
     if(count($node['edges']) > 0) {
       foreach($node['edges'] as $edge=>$edge_data) {
-        $value = (int) $edge_data['data']['value'];
-
+        $value = isset($edge_data['data']['value']) ? (int) $edge_data['data']['value'] : null;
+         
         $data['links'][] = array(
-          'data' => $edge_data['data'],
+          'data' => isset($edge_data['data']) ? $edge_data['data'] : array(),
           'source' => $index,
           'target' => $indices[$edge],
           'value' => $value, //TODO hard coded should be dynamic

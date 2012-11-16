@@ -1,12 +1,25 @@
-var labels = [],
+
+var xLabels = [],
+  // highest value in entire data set - needs to work recursively
+  // also removes the labels which are the first column
+  max = d3.max(rows, function(row) { xLabels.push(row.shift()); return d3.max(row);}),
   p = [20, 50, 30, 50],
-  w = 900 - p[1] - p[3],
-  h = 400 - p[0] - p[2],
-  chart = {w: w * .65, h:h},
+  w = 800,
+  h = 400,
+  // chart is 65% and 80% of overall height
+  chart = {w: w * .65, h: h * .80},
   legend = {w: w * .35, h:h},
-  x = d3.scale.linear().domain([0,4]).range([0,chart.w]),
-  y = d3.scale.linear().domain([0,100]).range([chart.h, 0]),
+  // bar width is calculated based on chart width, and amount of data
+  // items - will resize if there is more or less
+  barWidth = ((.90 * chart.w) / (rows.length * key.length)),
+  // each cluster of bars - makes coding later easier
+  barGroupWidth = (key.length * barWidth),
+  // space in between each set
+  barSpacing = (.10 * chart.w) / rows.length,
+  x = d3.scale.linear().domain([0,rows.length]).range([0,chart.w]),
+  y = d3.scale.linear().domain([0,max]).range([chart.h, 0]),
   z = d3.scale.ordinal().range(["blue", "red", "orange", "green"]);
+
 
 var svg = d3.select("#visualization").append("svg")
   .attr("width", w)
@@ -17,57 +30,32 @@ var svg = d3.select("#visualization").append("svg")
 var graph = svg.append("g")
 .attr("class", "data");
 
-var data = (key.map(function(value,index) {
-  return rows.map(function(d,i) {
-    labels[i] = d[0];
-    return {x: d[0], y: +d[index+1]};
-  });
-}));
+var bar = graph.selectAll('g')
+    .data(rows)
+  .enter().append('g')
+    .attr('class', 'bargroup')
+    .attr('transform', function(d,i) { return "translate(" + i * (barGroupWidth + barSpacing) + ", 0)"; });
 
-var bar = svg.selectAll("g.bar")
-    .data(data)
-  .enter().append("g")
-    .attr("class", "bar")
-    .attr("transform", function(d) { return "translate(0," + y(d) + ")"; });
-
-bar.append("rect")
-  .attr("width", function(d) { console.log(d); return x(d.value); })
-  .attr("height", y.rangeBand());
-
-var circles = graph.selectAll("g.circles")
-    .data(data)
-  .enter().append("g")
-    .attr("fill", function(d, i) { return d3.rgb(z(i)); });
-
-circles.selectAll("circle")
+bar.selectAll('rect')
     .data(function(d) { return d; })
-  .enter().append("circle")
-    .attr("class", "area")
-    .attr("cx", function(d,i) { return x(i); })
-    .attr("cy", function(d,i) { return y(d.y); })
-    .attr("r", 6)
-    .on("mouseover", function() { 
-      var save = this;
-      var target = d3.select(this)
-        .append("circle").style("fill", "aliceblue"); 
-        target.append("circle").style("fill","black");
-    })
-    .on("mouseout", function(d,i) { d3.select(this).style("fill", d3.rgb(z(i))); } );
+  .enter().append('rect')
+    .attr("width", barWidth)
+    .attr("height", function(d) { return chart.h - y(d); })
+    .attr('x', function (d,i) { return i * barWidth; })
+    .attr('y', function (d,i) { return y(d); })
+    .attr('fill', function(d,i) { return d3.rgb(z(i)); });
 
 /* X AXIS  */
 var xTicks = graph.selectAll("g.ticks")
-    .data(x.ticks(4))
+    .data(rows)
   .enter().append("g")
     .attr("class","ticks")
-    .attr('transform', function(d,i) { return 'translate('+x(d)+','+(h+20)+')'});
-
-xTicks.selectAll('text')
-    .data(function(d,i) { return d3.splitString(labels[i],10)})
-  .enter().append("text")
+    .attr('transform', function(d,i) { return 'translate('+( x(i) + 50)+','+(chart.h)+')'})
+  .append("text")
     .attr("dy", ".71em")
-    .attr("y", function(d,i) {  return i*20} )
-    .attr("text-anchor", "middle")
-    .text(function(d,i){ return d; });
+    .attr("text-anchor", "end")
+    .attr('transform', function(d,i) { return "rotate(-25)"; })
+    .text(function(d,i){ return xLabels[i]; });
 
 /* LINES */
 var rule = graph.selectAll("g.rule")

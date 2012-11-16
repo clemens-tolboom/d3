@@ -1,6 +1,6 @@
 <?php
 
-class BarGraph extends Visualization {
+class ColumnChart extends Visualization {
 
 
   function __construct($data) {
@@ -10,7 +10,7 @@ class BarGraph extends Visualization {
     $this->js_add_variable('key', $this->legend);	
     $this->js_add_variable('rows', $this->rows);
 
-    $this->templateFile = drupal_get_path('module', 'd3') . '/templates/BarGraph.tpl.js';
+    $this->templateFile = drupal_get_path('module', 'd3') . '/templates/ColumnChart.tpl.js';
   }	
 
 

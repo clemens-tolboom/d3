@@ -1,0 +1,96 @@
+<?php
+
+function d3_example_menu() {
+
+  $items['examples/line'] = array(
+    'title' => t('Line graph example'),
+    'description' => t('Uses d3 module to create a sample line graph'),
+    'access callback' => TRUE,
+    'page callback' => 'd3_example_linegraph',
+  );
+
+  $items['examples/forcedirected'] = array(
+    'title' => t('Force directed graph example'),
+    'description' => t('Uses d3 module to create a sample force directed graph'),
+    'access callback' => TRUE,
+    'page callback' => 'd3_example_forcedirected',
+  );
+
+  $items['examples/column'] = array(
+    'title' => t('Column chart example'),
+    'description' => t('Uses d3 module to create a sample bar chart'),
+    'access callback' => TRUE,
+    'page callback' => 'd3_example_column',
+  );
+
+  return $items;
+}
+
+function d3_example_linegraph() {
+
+  $chart = array(
+    'type' => 'LineGraph',
+    'legend' => array(
+      '% Popular Support for Increasing State Tax on Corporations',
+      'Activists Mobilized',  
+      '% Statewide Champions',
+      'Leaders Trained'
+    ),
+    'rows' => array(
+      array('1st Quarter 2011',10,20,26,35),
+      array('2nd Quarter 2011',20,26,27,37),
+      array('3rd Quarter 2011',10,50,28,50),
+      array('4th Quarter 2011',15,76,49,51),
+      array('1st Quarter 2012',20,100,50,52),
+    ),
+  );
+
+  return d3_draw($chart);
+}
+
+function d3_example_forcedirected() {
+
+  $graph = graphapi_new_graph();
+
+  graphapi_add_link($graph, "graphapi_relation", "relation");
+  graphapi_add_link($graph, "graphapi_relation", "graphapi");
+  graphapi_add_link($graph, "graphapi", "views");
+  graphapi_add_link($graph, "php", "graphapi");
+  graphapi_add_link($graph, "graphapi", "graph_phyz");
+  graphapi_add_link($graph, "graphapi", "graphviz_filter");
+  graphapi_add_link($graph, "graphapi", "thejit");
+  graphapi_add_link($graph, "thejit", "thejit_spacetree");
+  graphapi_add_link($graph, "thejit", "thejit_forcedirected");
+  graphapi_add_link($graph, "thejit", "thejit_x");
+
+  $options = array(
+    'width' => 400,
+    'height' => 400,
+    'item-width' => 45,
+    'engine' => 'd3'
+  );
+  return theme('graphapi_dispatch', array('graph' => $graph, 'config' => $options));
+}
+
+function d3_example_column() {
+
+  $chart = array(
+    'type' => 'ColumnChart',
+    'legend' => array(
+      '% Popular Support for Increasing State Tax on Corporations',
+      'Activists Mobilized',  
+      '% Statewide Champions',
+      'Leaders Trained'
+    ),
+    'rows' => array(
+      array('1st Quarter 2011',10,20,26,35),
+      array('2nd Quarter 2011',20,26,27,37),
+      array('3rd Quarter 2011',10,50,28,50),
+      array('4th Quarter 2011',15,76,49,51),
+      array('1st Quarter 2012',20,100,50,52),
+      array('2nd Quarter 2012',4,1,110,40),
+    ),
+  );
+
+  return d3_draw($chart);
+}
