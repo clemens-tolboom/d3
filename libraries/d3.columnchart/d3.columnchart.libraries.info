@@ -1,0 +1,6 @@
+name = Column Chart 
+files[js][] = columnchart.js
+version = 0.1
+dependencies[] = d3
+dependencies[] = d3.extend
+

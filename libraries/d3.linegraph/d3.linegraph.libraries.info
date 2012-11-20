@@ -1,0 +1,7 @@
+name = Line Graph
+files[js][] = linegraph.js
+files[css][] = linegraph.css
+version = 0.1
+dependencies[] = d3
+dependencies[] = d3.extend
+

@@ -9,12 +9,14 @@ function d3_example_menu() {
     'page callback' => 'd3_example_linegraph',
   );
 
-  $items['examples/forcedirected'] = array(
-    'title' => t('Force directed graph example'),
-    'description' => t('Uses d3 module to create a sample force directed graph'),
-    'access callback' => TRUE,
-    'page callback' => 'd3_example_forcedirected',
-  );
+  if (module_exists('graphapi')) {
+    $items['examples/forcedirected'] = array(
+      'title' => t('Force directed graph example'),
+      'description' => t('Uses d3 module to create a sample force directed graph'),
+      'access callback' => TRUE,
+      'page callback' => 'd3_example_forcedirected',
+    );
+  }
 
   $items['examples/column'] = array(
     'title' => t('Column chart example'),
@@ -29,6 +31,7 @@ function d3_example_menu() {
 function d3_example_linegraph() {
 
   $chart = array(
+    'id' => 'Visualization',
     'type' => 'LineGraph',
     'legend' => array(
       '% Popular Support for Increasing State Tax on Corporations',
@@ -74,7 +77,10 @@ function d3_example_forcedirected() {
 
 function d3_example_column() {
 
+  $library = libraries_load('d3.columnchart');
+
   $chart = array(
+    'id' => 'visualization',
     'type' => 'ColumnChart',
     'legend' => array(
       '% Popular Support for Increasing State Tax on Corporations',

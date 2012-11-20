@@ -1,39 +1,32 @@
 <?php
-function d3_load() {
-
-  if ($path = libraries_get_path('d3')) {
-    // Do something with the library, knowing the path, for instance:
-    drupal_add_js($path . '/d3.v2.js', array('group' => JS_LIBRARY, 'weight' => 24));
-    drupal_add_js(drupal_get_path('module', 'd3') .'/js/d3.extend.js', array('group' => JS_LIBRARY, 'weight' => 25));
-//    drupal_add_js('http://mbostock.github.com/d3/d3.geom.js', 'external');
-//    drupal_add_js('http://mbostock.github.com/d3/d3.layout.js', 'external');
-    drupal_add_css(drupal_get_path('module', 'd3').'/d3.css');
-    module_load_include('php', 'd3', '/inc/Visualization.class');
-    module_load_include('php', 'd3', '/inc/LineGraph.class');
-    module_load_include('php', 'd3', '/inc/ColumnChart.class');
-    module_load_include('php', 'd3', '/inc/ForceDirectedGraph.class');
-    
-  } 
-  else { 
-    return drupal_set_message('The d3 library is needed to use this module', 'error');
-  }
-
-}
 
 function d3_draw($chart) {
 
-  d3_load();
+  $type = isset($chart['type']) ? $chart['type'] : NULL;
 
-  $type = $chart['type'];
-  if (class_exists($type)) {
-    $visualization = new $type($chart);
-    return $visualization->render();
+  // require the type
+  if (!$type) {
+    drupal_set_message("No chart type specified");
+  }
+
+  // form library name - convention is going to be d3.[library]
+  $library_name = 'd3.' . strtolower($type);
+
+  if ($library = libraries_detect($library_name)) {
+    libraries_load($library_name);
+
+    $js = array(
+      'd3' => array(
+        'inventory' => array($chart['id'] => $chart),
+      ),
+    );
+    drupal_add_js($js, 'setting');
+    return '<div id="' . $chart['id'] . '"></div>';
   }
   else {
-    drupal_set_message(t('Invalid chart type !type', array('!type' => $type)));
+    drupal_set_message(t('Invalid chart type !type and/or library !library_name is not installed', array('!type' => $type, '!library_name' => $library_name)));
     return '';
   }
-
 }
 
 function d3_graphapi_formats() {
@@ -103,7 +96,8 @@ function _d3_graphapi_format_graph_data($graph) {
 function theme_d3_graphapi($vars) {
   $graph = _d3_graphapi_format_graph_data($vars['graph']);
   $chart = array(
-    'type' => 'ForceDirectedGraph',
+    'id' => 'visualization',
+    'type' => 'ForceDirected',
     'links' => $graph['links'],
     'nodes' => $graph['nodes'],
     'config' => $vars['config'],
@@ -128,3 +122,85 @@ function d3_graphapi_default_settings() {
 function template_preprocess_views_graphapi_style_d3(&$vars) {
   dsm($vars);
 }
+
+/**
+ * Implements hook_libraries_paths().
+ */
+function d3_libraries_info_file_paths() {
+
+  $libraries = libraries_get_libraries();
+
+  $paths = array();
+
+  foreach ($libraries as $id => $path) {
+    $paths[] = $path;
+  }
+
+  return $paths;
+}
+
+/**
+ * Implements hook_requirements()
+ */
+function d3_requirements($phase) {
+  $requirements = array();
+  if ($phase == 'runtime') {
+    $t = get_t();
+    if ($path = libraries_get_path('d3')) {
+      if (file_exists($path . '/d3.v2.min.js')) {
+        $requirements['d3'] = array(
+          'title' => $t('D3'),
+          'value' => $t('d3.v2.min.js found under !path', array('!path' => $path . '/d3.v2.min.js')),
+          'severity' => REQUIREMENT_OK,
+        );
+        return $requirements;
+      }
+    }
+    $requirements['d3'] = array(
+      'title' => $t('D3'),
+      'value' => isset($lib['error message']) ? $t($lib['error message']) : t('D3 library was not found. !download the library and place in under sites/all/libraries/d3, so that the library can be found at sites/all/libraries/d3/d3.v2.min.js.', array(
+        '!download' => l(t('Download'), 'https://github.com/mbostock/d3'))
+      ),
+      'severity' => REQUIREMENT_ERROR,
+    );
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function d3_libraries_info() {
+
+  $libraries = array();
+
+  // drupal ext adds behaviors and d3 global object
+  $libraries['d3.drupal'] = array(
+    'name' => 'D3 Drupal ext',
+    'vendor url' => 'http://drupal.org/sandbox/asherry/1477334',
+    'files' => array(
+      'js' => array(
+        'd3.js',
+      ),
+    ),
+    'path' => 'js',
+    'library path' => drupal_get_path('module', 'd3'),
+    'version' => '1',
+  );
+
+  $libraries['d3'] = array(
+    'name' => 'D3',
+    'vendor url' => 'http://d3js.org/',
+    'download url' => 'https://github.com/mbostock/d3',
+    'files' => array(
+      'js' => array(
+        'd3.v2.min.js',
+      ),
+    ),
+    'version' => '2',
+    'dependencies' => array('d3.drupal'),
+  );
+
+  return $libraries;
+}
+
