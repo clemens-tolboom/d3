@@ -1,4 +1,6 @@
 name = D3 Examples
 description = Some use cases of charts and graphs using the d3 module
 core = 7.x
-package = d3
+package = Visualization
+dependencies[] = d3
+
