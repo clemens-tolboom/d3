@@ -1,126 +1,54 @@
 <?php
 
-function d3_draw($chart) {
-
-  $type = isset($chart['type']) ? $chart['type'] : NULL;
-
-  // require the type
-  if (!$type) {
-    drupal_set_message("No chart type specified");
-  }
-
-  // form library name - convention is going to be d3.[library]
-  $library_name = 'd3.' . strtolower($type);
-
-  if ($library = libraries_detect($library_name)) {
-    libraries_load($library_name);
-
-    $js = array(
-      'd3' => array(
-        'inventory' => array($chart['id'] => $chart),
-      ),
-    );
-    drupal_add_js($js, 'setting');
-    return '<div id="' . $chart['id'] . '"></div>';
-  }
-  else {
-    drupal_set_message(t('Invalid chart type !type and/or library !library_name is not installed', array('!type' => $type, '!library_name' => $library_name)));
-    return '';
-  }
-}
-
-function d3_graphapi_formats() {
-  return array(
-    'd3' => t('D3'),
-  );
-}
-
-function d3_graphapi_settings_form($values) {
- 
-  $engine = 'd3'; 
-  $form[$engine] = array(
-    '#type' => 'fieldset',
-    '#title' => 'D3 settings',
-  );
-
-  return $form;
-  
-}
-
+/**
+ * Implements hook_theme()
+ */
 function d3_theme() {
-  return array(
-    'd3_graphapi' => array(
-      'variables' => array(
-        'graph' => NULL,
-        'config' => NULL,
-      ),
-    ),
-  );
-} 
 
-function _d3_graphapi_format_graph_data($graph) {
-  $data = array();
-  $indices = array();
-  $index = 0;
-
-  foreach ($graph as $id => $node) {
-    $indices[$id] = $index;
-    $index++;
-  }
-
-  // add in edges
-  foreach ($graph as $id => $node) {
-    $index = $indices[$id];
-    $data['nodes'][$index] = array(
-      'name' => $node['data']['title'],
-      'group' => isset($node['data']['group']) ? $node['data']['group'] : 1,
-      'data' => $node['data'],
-    );
-    if(count($node['edges']) > 0) {
-      foreach($node['edges'] as $edge=>$edge_data) {
-        $value = isset($edge_data['data']['value']) ? (int) $edge_data['data']['value'] : null;
-         
-        $data['links'][] = array(
-          'data' => isset($edge_data['data']) ? $edge_data['data'] : array(),
-          'source' => $index,
-          'target' => $indices[$edge],
-          'value' => $value, //TODO hard coded should be dynamic
-        );
-      }
+  foreach (libraries_info() as $path => $library) {
+    // call this function to get all fields - i.e. library path
+    $library = libraries_load($path);
+    // if a template was specified in the .info file or hook_libraries_info
+    if (isset($library['template'])) {
+      // change d3.[library name] to d3_[library name] for a theme key
+      $theme_key = str_replace('.', '_', $library['machine name']);
+      $themes[$theme_key] = array(
+        'template' => $library['template'],
+        'path' => $library['library path'], 
+      );        
     }
   }
 
-  return $data;
-}
-
-function theme_d3_graphapi($vars) {
-  $graph = _d3_graphapi_format_graph_data($vars['graph']);
-  $chart = array(
-    'id' => 'visualization',
-    'type' => 'ForceDirected',
-    'links' => $graph['links'],
-    'nodes' => $graph['nodes'],
-    'config' => $vars['config'],
+  $themes['d3'] = array(
+    'variables' => array(),
+    'template' => 'd3',
   );
-  return d3_draw($chart);
-}
+
+  $themes['d3_graphapi'] = array(
+    'variables' => array(
+      'graph' => NULL,
+      'config' => NULL,
+    ),
+  );
+
+  return $themes;
+} 
 
 /**
- * Implements hook_graphapi_default_settings().
- *
- * We reuse the default settings from thejit_forcedirected_default_settings.
- *
- * @see thejit_forcedirected_default_settings()
- * @see views_object::option_definition()
+ * Implements hook_preprocess_[hook]
  */
-function d3_graphapi_default_settings() {
-  $engine = 'd3';
-  $values = array();
-  return graphapi_settings_to_views($engine, $values);
-}
+function d3_preprocess_d3(&$variables) {
 
-function template_preprocess_views_graphapi_style_d3(&$vars) {
-  dsm($vars);
+  // let drupal_attributes render this
+  $variables['classes_array'][] = $variables['type'];
+  $variables['attributes_array']['id'] = array($variables['vis_id']);
+
+  $library = isset($variables['library']) ? $variables['library'] : FALSE;
+
+  // let's look for a template file in the library definition
+  if (isset($library['template'])) {
+    $variables['theme_hook_suggestion'] = isset($library['library name']) ? $library['library name'] : str_replace('.', '_', $library['machine name']);
+  }
 }
 
 /**
@@ -128,10 +56,11 @@ function template_preprocess_views_graphapi_style_d3(&$vars) {
  */
 function d3_libraries_info_file_paths() {
 
+  // get all library directories
   $libraries = libraries_get_libraries();
 
   $paths = array();
-
+  // output an array of paths to check for
   foreach ($libraries as $id => $path) {
     $paths[] = $path;
   }
@@ -202,5 +131,136 @@ function d3_libraries_info() {
   );
 
   return $libraries;
+}
+
+/**
+ * d3 main API callback
+ */
+function d3_draw($vis) {
+
+  // type is required for correct processing
+  $type = isset($vis['type']) ? $vis['type'] : NULL;
+
+  if (!$type) {
+    drupal_set_message("No chart type specified");
+    return '';
+  }
+
+  // form library name - convention is going to be d3.[library]
+  $library_name = 'd3.' . strtolower($type);
+
+  // check for library instance / definition
+  if ($library = libraries_detect($library_name)) {
+    $vis['library'] = libraries_load($library_name);
+    $vis['library']['library name'] = str_replace('.', '_', $library_name);
+    // store as vis_id because key ['id'] will get overridden
+    $vis['vis_id'] = $vis['id'];
+
+    // now add to the behaviors to execute on page load
+    $js = array(
+      'd3' => array(
+        'inventory' => array($vis['id'] => $vis),
+      ),
+    );
+    drupal_add_js($js, 'setting');
+
+    // renders the html - .tpl.php if specified or default d3.tpl.php
+    return theme('d3', $vis);
+
+  }
+  else {
+    drupal_set_message(t('Invalid chart type !type and/or library !library_name is not installed', array('!type' => $type, '!library_name' => $library_name)));
+    return '';
+  }
+}
+
+/**
+ * Implements hook_graphapi_formats()
+ */
+function d3_graphapi_formats() {
+  return array(
+    'd3' => t('D3'),
+  );
+}
+
+/**
+ * Implements hook_graphapi_settings_form()
+ */
+function d3_graphapi_settings_form($values) {
+ 
+  $engine = 'd3'; 
+  $form[$engine] = array(
+    '#type' => 'fieldset',
+    '#title' => 'D3 settings',
+  );
+
+  return $form;
+  
+}
+
+
+function _d3_graphapi_format_graph_data($graph) {
+  $data = array();
+  $indices = array();
+  $index = 0;
+
+  foreach ($graph as $id => $node) {
+    $indices[$id] = $index;
+    $index++;
+  }
+
+  // add in edges
+  foreach ($graph as $id => $node) {
+    $index = $indices[$id];
+    $data['nodes'][$index] = array(
+      'name' => $node['data']['title'],
+      'group' => isset($node['data']['group']) ? $node['data']['group'] : 1,
+      'data' => $node['data'],
+    );
+    if(count($node['edges']) > 0) {
+      foreach($node['edges'] as $edge=>$edge_data) {
+        $value = isset($edge_data['data']['value']) ? (int) $edge_data['data']['value'] : null;
+         
+        $data['links'][] = array(
+          'data' => isset($edge_data['data']) ? $edge_data['data'] : array(),
+          'source' => $index,
+          'target' => $indices[$edge],
+          'value' => $value, //TODO hard coded should be dynamic
+        );
+      }
+    }
+  }
+
+  return $data;
+}
+
+function theme_d3_graphapi($vars) {
+  $graph = _d3_graphapi_format_graph_data($vars['graph']);
+  $chart = array(
+    'id' => 'visualization',
+    'type' => 'ForceDirected',
+    'links' => $graph['links'],
+    'nodes' => $graph['nodes'],
+    'config' => $vars['config'],
+  );
+  return d3_draw($chart);
+}
+
+/**
+ * Implements hook_graphapi_default_settings().
+ *
+ * We reuse the default settings from thejit_forcedirected_default_settings.
+ *
+ * @see thejit_forcedirected_default_settings()
+ * @see views_object::option_definition()
+ */
+function d3_graphapi_default_settings() {
+  $engine = 'd3';
+  $values = array();
+  return graphapi_settings_to_views($engine, $values);
+}
+
+function template_preprocess_views_graphapi_style_d3(&$vars) {
+  dsm($vars);
 }
 

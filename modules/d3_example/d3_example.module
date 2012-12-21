@@ -31,7 +31,7 @@ function d3_example_menu() {
 function d3_example_linegraph() {
 
   $chart = array(
-    'id' => 'Visualization',
+    'id' => 'visualization',
     'type' => 'LineGraph',
     'legend' => array(
       '% Popular Support for Increasing State Tax on Corporations',
@@ -76,8 +76,6 @@ function d3_example_forcedirected() {
 }
 
 function d3_example_column() {
-
-  $library = libraries_load('d3.columnchart');
 
   $chart = array(
     'id' => 'visualization',
