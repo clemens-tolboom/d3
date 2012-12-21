@@ -1,4 +1,6 @@
-name = d3.js Example
+name = d3.js
 description = d3 Javascript library example for testing
 core = 7.x
 dependencies[] = libraries (>=2.0)
+package = Visualization
+
