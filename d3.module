@@ -1,4 +1,10 @@
 <?php
+/**
+ * @author Alan Sherry http://drupal.org/user/941916
+ * @file
+ *
+ * Sponsored by http://www.freeflowdigital.com
+ */
 
 /**
  * Implements hook_theme()
@@ -134,7 +140,12 @@ function d3_libraries_info() {
 }
 
 /**
- * d3 main API callback
+ * D3's main API callback
+ *
+ * @param $vis
+ *   Array. The chart data 
+ * @return
+ *   String. Rendered chart html
  */
 function d3_draw($vis) {
 

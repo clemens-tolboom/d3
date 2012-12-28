@@ -1,0 +1,8 @@
+name = D3 Views
+description = The D3.js drupal module's integration with Views API 
+core = 7.x
+package = Visualization
+dependencies[] = views
+dependencies[] = d3
+
+files[] = views/plugins/views_plugin_style_d3.inc
