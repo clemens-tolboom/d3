@@ -71,6 +71,18 @@ function d3_libraries_info_file_paths() {
     $paths[] = $path;
   }
 
+  // load the directory where the d3 example libraries are
+  $example_path = drupal_get_path('module', 'd3') . '/libraries/';
+
+  // add these to the search directories for libraries
+  foreach (array(
+    'd3.columnchart', 
+    'd3.extend', 
+    'd3.forcedirected', 
+    'd3.linegraph') as $example) {
+    $paths[] = $example_path . $example;
+  }
+
   return $paths;
 }
 
