@@ -1,0 +1,4 @@
+name = Tooltip
+files[js][] = tooltip.js
+dependencies[] = d3
+version = 0.1
