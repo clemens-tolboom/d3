@@ -75,11 +75,7 @@ function d3_libraries_info_file_paths() {
   $example_path = drupal_get_path('module', 'd3') . '/libraries/';
 
   // add these to the search directories for libraries
-  foreach (array(
-    'd3.columnchart', 
-    'd3.extend', 
-    'd3.forcedirected', 
-    'd3.linegraph') as $example) {
+  foreach (d3_example_libraries() as $example) {
     $paths[] = $example_path . $example;
   }
 
@@ -112,6 +108,15 @@ function d3_requirements($phase) {
     );
   }
   return $requirements;
+}
+
+function d3_libraries_info_alter(&$libraries) {
+
+  $path = drupal_get_path('module', 'd3') . '/libraries/';
+
+  foreach (d3_example_libraries() as $library_name) {
+    $libraries[$library_name]['library path'] = $path . $library_name;
+  }
 }
 
 /**
@@ -151,6 +156,16 @@ function d3_libraries_info() {
   return $libraries;
 }
 
+function d3_example_libraries() {
+  return array(
+    'd3.columnchart', 
+    'd3.extend', 
+    'd3.forcedirected', 
+    'd3.linegraph',
+    'd3.tooltip',
+  );
+}
+
 /**
  * D3's main API callback
  *
@@ -162,7 +177,7 @@ function d3_libraries_info() {
 function d3_draw($vis) {
 
   // type is required for correct processing
-  $type = isset($vis['type']) ? $vis['type'] : NULL;
+  $type = isset($vis['type']) ? strtolower($vis['type']) : NULL;
 
   if (!$type) {
     drupal_set_message("No chart type specified");
@@ -170,12 +185,14 @@ function d3_draw($vis) {
   }
 
   // form library name - convention is going to be d3.[library]
-  $library_name = 'd3.' . strtolower($type);
+  $library_name = 'd3.' . $type;
 
   // check for library instance / definition
   if ($library = libraries_detect($library_name)) {
     $vis['library'] = libraries_load($library_name);
     $vis['library']['library name'] = str_replace('.', '_', $library_name);
+    // Enforce lowercase change.
+    $vis['type'] = $type;
     // store as vis_id because key ['id'] will get overridden
     $vis['vis_id'] = $vis['id'];
 
