@@ -4,4 +4,5 @@ files[css][] = linegraph.css
 version = 0.1
 dependencies[] = d3
 dependencies[] = d3.extend
-
+dependencies[] = d3.tooltip
+views = 2.5

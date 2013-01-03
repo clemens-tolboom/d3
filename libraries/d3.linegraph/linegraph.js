@@ -1,27 +1,29 @@
 (function($) {
 
-  Drupal.d3.LineGraph = function (select, settings) {
+  Drupal.d3.linegraph = function (select, settings) {
 
     var labels = [],
       key = settings.legend,
       rows = settings.rows,
-      p = [20, 50, 30, 50],
+      p = [10, 50, 70, 50],
       w = 900 - p[1] - p[3],
-      h = 400 - p[0] - p[2],
-      chart = {w: w * .65, h:h},
-      legend = {w: w * .35, h:h},
-      x = d3.scale.linear().domain([0,4]).range([0,chart.w]),
-      y = d3.scale.linear().domain([0,100]).range([chart.h, 0]),
+      h = 400,
+      chart = {w: w * .65, h: h - p[0] - p[2] },
+      legend = {w: w * .25, h:h},
+      x = d3.scale.linear().domain([0,rows.length - 1]).range([20,chart.w]),
+      y = d3.scale.linear().domain([0,maxValue(rows)]).range([chart.h, 0]),
       z = d3.scale.ordinal().range(["blue", "red", "orange", "green"]);
 
     var svg = d3.select('#' + settings.id).append("svg")
         .attr("width", w)
         .attr("height", h)
-      .append("g")
-        .attr("transform", "translate(" + p[3] + "," + p[0] + ")");
+        .attr('class', 'container')
+      .append("g");
 
     var graph = svg.append("g")
-      .attr("class", "data");
+      .attr("class", "chart")
+      .attr('height', chart.h)
+      .attr("transform", "translate(" + p[3] + "," + p[0] + ")");
 
     var data = (key.map(function(value,index) {
       return rows.map(function(d,i) {
@@ -30,7 +32,7 @@
       });
     }));
 
-    // Add a line for each cause.
+    // LINES
     graph.selectAll("path.line")
         .data(data)
       .enter().append("path")
@@ -53,32 +55,48 @@
         .attr("cx", function(d,i) { return x(i); })
         .attr("cy", function(d,i) { return y(d.y); })
         .attr("r", 6)
-        .on("mouseover", function() { 
-          var save = this;
-          var target = d3.select(this)
-            .append("circle").style("fill", "aliceblue"); 
-          target.append("circle").style("fill","black");
-        })
-        .on("mouseout", function(d,i) { d3.select(this).style("fill", d3.rgb(z(i))); } );
+        .on("mouseover", function(d, i) { 
+          var circle = d3.select(this)
+            .attr('fill-opacity', '0.50');
 
-    /* X AXIS  */
+          var tip = graph.append('g')
+            .attr('class', 'tooltip')
+            .attr('transform', function(d,i) { return 'translate('+ circle.attr('cx') +','+ circle.attr('cy') +')'; });
+
+          d3.tooltip(tip, d.y);
+        })
+        .on("mouseout", function(d,i) { 
+          d3.select(this)
+            .attr('fill-opacity', '1.0');
+
+          graph.select('.tooltip').remove();
+        });
+
+    /* X AXIS */
     var xTicks = graph.selectAll("g.ticks")
-        .data(x.ticks(4))
+        .data(x.ticks(rows.length - 1))
       .enter().append("g")
         .attr("class","ticks")
-        .attr('transform', function(d,i) { return 'translate('+x(d)+','+(h+20)+')'});
+        .attr('transform', function(d,i) { return 'translate('+x(d)+','+(chart.h)+')'});
 
-    xTicks.selectAll('text')
-        .data(function(d,i) { return d3.splitString(labels[i],10)})
-      .enter().append("text")
-        .attr("dy", ".71em")
-        .attr("y", function(d,i) {  return i*20} )
-        .attr("text-anchor", "middle")
-        .text(function(d,i){ return d; });
+    xTicks.append('text')
+        .text(function(d,i) { return labels[i]; })
+        .attr("text-anchor", "end")
+        .attr('dy', '.71em')
+        .attr('transform', function(d) { return "rotate(-40)"; });
 
-    /* LINES */
+//    xTicks.selectAll('text')
+//        .data(function(d,i) { return d3.splitString(labels[i],10)})
+//      .enter().append("text")
+//        .attr("dy", ".71em")
+//        .attr("y", function(d,i) {  return i*20} )
+//        .attr("text-anchor", "end")
+//        .attr('transform', function(d) { return "rotate(-25)"; })
+//        .text(function(d,i){ return d; });
+
+    /* Y AXIS */
     var rule = graph.selectAll("g.rule")
-        .data(y.ticks(4))
+        .data(y.ticks(8))
       .enter().append("g")
         .attr("class", "rule")
         .attr("transform", function(d) { return "translate(0," + y(d) + ")"; });
@@ -88,7 +106,6 @@
       .style("stroke", function(d) { return d ? "#ccc" : "#000"; })
       .style("stroke-opacity", function(d) { return d ? .7 : null; });
 
-    /* Y AXIS */
     rule.append("text")
       .attr("x", -15)
       .attr("dy", ".35em")
@@ -98,7 +115,8 @@
     /* LEGEND */
     var legend = svg.append("g")
       .attr("class", "legend")
-      .attr("transform", "translate("+(chart.w+20)+","+0+")");
+      .attr('width', legend.w)
+      .attr("transform", "translate("+(w - legend.w)+","+0+")");
 
     var keys = legend.selectAll("g")
         .data(key)
@@ -121,6 +139,16 @@
         .attr("x", 20)
         .attr("y", function(d,i) {  return i*20} )
         .attr("dy", "1em");
+
+    function maxValue(rows) {
+      var data = jQuery.extend(true, [], rows);
+      data = d3.merge(data);
+      var max = d3.max(data.map(function(d) {
+        return +d;
+      }));
+      return max;
+    }
+
   }
 
 })(jQuery);

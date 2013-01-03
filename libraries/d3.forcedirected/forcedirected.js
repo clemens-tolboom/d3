@@ -1,6 +1,6 @@
 (function($) {
 
-  Drupal.d3.ForceDirected = function (select, settings) {
+  Drupal.d3.forcedirected = function (select, settings) {
 
     var width  = (settings.width || 300),
         height = (settings.height || 300),

@@ -1,13 +1,17 @@
 (function($) {
 
-  Drupal.d3.ColumnChart= function (select, settings) {
+  Drupal.d3.columnchart = function (select, settings) {
 
-    var xLabels = [],
-      // highest value in entire data set - needs to work recursively
-      // also removes the labels which are the first column
-      rows = settings.rows,
+    var rows = settings.rows,
+      // Use first value in each row as the label.
+      xLabels = rows.map(function(d) { return d.shift(); })
       key = settings.legend,
-      max = d3.max(rows, function(row) { xLabels.push(row.shift()); return d3.max(row);}),
+      // From inside out:
+      // - Convert all values to numeric numbers.
+      // - Merge all sub-arrays into one flat array.
+      // - Return the highest (numeric) value from flat array.
+      max = d3.max(d3.merge(settings.rows).map(function(d) { return +d; })),
+      // Padding is top, right, bottom, left as in css padding.
       p = [20, 50, 30, 50],
       w = 800,
       h = 400,
@@ -26,7 +30,6 @@
       z = d3.scale.ordinal().range(["blue", "red", "orange", "green"]),
       div = (settings.id) ? settings.id : 'visualization';
 
-
     var svg = d3.select('#' + div).append("svg")
       .attr("width", w)
       .attr("height", h)
@@ -34,33 +37,18 @@
       .attr("transform", "translate(" + p[3] + "," + p[0] + ")");
 
     var graph = svg.append("g")
-      .attr("class", "data");
-
-    var bar = graph.selectAll('g')
-      .data(rows)
-      .enter().append('g')
-      .attr('class', 'bargroup')
-      .attr('transform', function(d,i) { return "translate(" + i * (barGroupWidth + barSpacing) + ", 0)"; });
-
-    bar.selectAll('rect')
-      .data(function(d) { return d; })
-      .enter().append('rect')
-      .attr("width", barWidth)
-      .attr("height", function(d) { return chart.h - y(d); })
-      .attr('x', function (d,i) { return i * barWidth; })
-      .attr('y', function (d,i) { return y(d); })
-      .attr('fill', function(d,i) { return d3.rgb(z(i)); });
+      .attr("class", "chart");
 
     /* X AXIS  */
     var xTicks = graph.selectAll("g.ticks")
       .data(rows)
       .enter().append("g")
       .attr("class","ticks")
-      .attr('transform', function(d,i) { return 'translate('+( x(i) + 50)+','+(chart.h)+')'})
+      .attr('transform', function(d,i) { return 'translate('+( x(i) + (barGroupWidth/2))+','+(chart.h)+')'})
       .append("text")
       .attr("dy", ".71em")
       .attr("text-anchor", "end")
-      .attr('transform', function(d,i) { return "rotate(-25)"; })
+      .attr('transform', function(d,i) { return "rotate(-35)"; })
       .text(function(d,i){ return xLabels[i]; });
 
     /* LINES */
@@ -81,6 +69,24 @@
       .attr("dy", ".35em")
       .attr("text-anchor", "end")
       .text(d3.format(",d"));
+
+    var bar = graph.selectAll('g.bars')
+      .data(rows)
+      .enter().append('g')
+      .attr('class', 'bargroup')
+      .attr('transform', function(d,i) { return "translate(" + i * (barGroupWidth + barSpacing) + ", 0)"; });
+
+    bar.selectAll('rect')
+      .data(function(d) { return d; })
+      .enter().append('rect')
+      .attr("width", barWidth)
+      .attr("height", function(d) { return chart.h - y(d); })
+      .attr('x', function (d,i) { return i * barWidth; })
+      .attr('y', function (d,i) { return y(d); })
+      .attr('fill', function(d,i) { return d3.rgb(z(i)); })
+      .on('mouseover', function(d, i) { showToolTip(d, i, this); })
+      .on('mouseout', function(d, i) { hideToolTip(d, i, this); });
+
 
     /* LEGEND */
     var legend = svg.append("g")
@@ -109,7 +115,38 @@
       .attr("y", function(d,i) {  return i*20} )
       .attr("dy", "1em");
  
+
+    function showToolTip(d, i, obj) {
+      // change color and style of the bar
+      var bar = d3.select(obj);
+      bar.attr('stroke', '#ccc')
+        .attr('stroke-width', '1')
+        .attr('opacity', '0.75');
+
+      var group = d3.select(obj.parentNode);
+
+      var tooltip = graph.append('g')
+        .attr('class', 'tooltip')
+        // move to the x position of the parent group
+        .attr('transform', function(data) { return group.attr('transform'); })
+          .append('g')
+        // now move to the actual x and y of the bar within that group 
+        .attr('transform', function(data) { return 'translate(' + (Number(bar.attr('x')) + barWidth) +',' + y(d) + ')'; });
+
+
+      d3.tooltip(tooltip, d);
+    }
+
+    function hideToolTip(d, i, obj) {
+      var group = d3.select(obj.parentNode);
+      var bar = d3.select(obj);
+      bar.attr('stroke-width', '0')
+        .attr('opacity', 1);
+
+      graph.select('g.tooltip').remove();
+
+    }
+
   }
 
 })(jQuery);
-
