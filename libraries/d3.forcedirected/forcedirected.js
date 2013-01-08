@@ -2,8 +2,8 @@
 
   Drupal.d3.forcedirected = function (select, settings) {
 
-    var width  = (settings.width || 300),
-        height = (settings.height || 300),
+    var width  = (settings.config.width || 300),
+        height = (settings.config.height || 300),
         nodes  = settings.nodes,
         links  = settings.links,
         z      = d3.scale.ordinal().range(["blue", "red", "orange", "green"]),
@@ -30,6 +30,10 @@
       force.linkDistance(settings.linkDistance)
     }
 
+    force.charge(-100);
+    force.distance(100);
+    force.gravity(.05);
+
     var svg = d3.select('#' + settings.id).append("svg")
         .attr("width", width)
         .attr("height", height);
@@ -47,7 +51,7 @@
       .enter().append("line")
         .attr("class", "link")
         .style("stroke", function(d) {  return d3.hsl(d.data.fill); })
-        .style("stroke-width", 2);
+        .style("stroke-width", 1);
 
     var node = graph.selectAll("g.node")
         .data(nodes, function(d) { return d.id;});
@@ -63,16 +67,12 @@
         .style("stroke", function(d) { return d3.hsl(d.data.fill); })
         .style("stroke-width", 3);
 
-    if (settings.showText) {
     nodeEnter.append("svg:text")
         .attr("class", "nodetext")
-        .attr("dx", 20)
+        .attr("dx", 10)
         .attr("dy", ".35em")
+        .attr('font-size', '10')
         .text(function(d) { return d.name });
-    } else {
-    node.append("title")
-        .text(function(d) { return d.name; });
-    }
 
     force.on("tick", function() {
       link.attr("x1", function(d) { return d.source.x; })
