@@ -1,5 +1,5 @@
-name = d3.js
-description = d3 Javascript library example for testing
+name = D3 
+description = An API for creating visualizations from D3 libraries
 core = 7.x
 dependencies[] = libraries (>=2.0)
 package = Visualization
