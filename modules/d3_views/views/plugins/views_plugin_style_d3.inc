@@ -356,22 +356,15 @@ class views_plugin_style_d3 extends views_plugin_style {
   }
 
   function get_libraries() {
-    static $views_libraries;
-
-    if ($views_libraries) {
-      return $views_libraries;
-    }
-
     $views_api_version = views_api_version();
-
-    $libraries = libraries_info();
+    // List all d3 libraries.
+    $libraries = d3_get_libraries();
     $views_libraries = array();
 
     foreach ($libraries as $library) {
       // We can match compatibility based on the views API version.
       if (isset($library['views']) && $library['views'] <= $views_api_version) {
         $library_name = $library['machine name'];
-        $library['js callback'] = str_replace('d3.', '', $library_name);
         $views_libraries[$library_name] = $library['name'];
         $this->libraries[$library_name] = $library;
       }
