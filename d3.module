@@ -86,14 +86,18 @@ function d3_libraries_info_file_paths() {
  * Implements hook_requirements()
  */
 function d3_requirements($phase) {
+  // @todo - 
+  // This should not be version dependent.
+  // That defeats the purpose of using the libraries module for 
+  // external libraries.
   $requirements = array();
   if ($phase == 'runtime') {
     $t = get_t();
     if ($path = libraries_get_path('d3')) {
-      if (file_exists($path . '/d3.v2.min.js')) {
+      if (file_exists($path . '/d3.v3.min.js')) {
         $requirements['d3'] = array(
           'title' => $t('D3'),
-          'value' => $t('d3.v2.min.js found under !path', array('!path' => $path . '/d3.v2.min.js')),
+          'value' => $t('d3.v3.min.js found under !path', array('!path' => $path . '/d3.v3.min.js')),
           'severity' => REQUIREMENT_OK,
         );
         return $requirements;
@@ -101,7 +105,7 @@ function d3_requirements($phase) {
     }
     $requirements['d3'] = array(
       'title' => $t('D3'),
-      'value' => isset($lib['error message']) ? $t($lib['error message']) : t('D3 library was not found. !download the library and place in under sites/all/libraries/d3, so that the library can be found at sites/all/libraries/d3/d3.v2.min.js.', array(
+      'value' => isset($lib['error message']) ? $t($lib['error message']) : t('D3 library was not found. !download the library and place in under sites/all/libraries/d3, so that the library can be found at sites/all/libraries/d3/d3.v3.min.js.', array(
         '!download' => l(t('Download'), 'https://github.com/mbostock/d3'))
       ),
       'severity' => REQUIREMENT_ERROR,
@@ -146,10 +150,10 @@ function d3_libraries_info() {
     'download url' => 'https://github.com/mbostock/d3',
     'files' => array(
       'js' => array(
-        'd3.v2.min.js',
+        'd3.v3.min.js',
       ),
     ),
-    'version' => '2',
+    'version' => '3',
     'dependencies' => array('d3.drupal'),
   );
 
@@ -215,6 +219,40 @@ function d3_draw($vis) {
 }
 
 /**
+ * Provides an array of d3 libraries. 
+ *
+ * D3 libraries are going to have a prefix of d3., see README.txt
+ * for information on creating a custom d3 library.
+ */
+function d3_get_libraries() {
+
+  static $d3_libraries;
+
+  if ($d3_libraries) {
+    return $d3_libraries;
+  }
+  // Returns all libraries in the default folders.
+  $libraries = libraries_info();
+
+  foreach ($libraries as $library) {
+    $library_name = $library['machine name'];
+    // Filter out any other non-d3 library. All d3 libraries should have
+    // the prefix "d3.".
+    if (strpos($library_name, 'd3.') === false) {
+      continue;
+    }
+    // Do not list these default extension libraries.
+    if (in_array($library_name, array('d3.extend', 'd3.tooltip', 'd3.drupal'))) {
+      continue;
+    }
+
+    $d3_libraries[$library_name] = $library;
+    $d3_libraries[$library_name]['js callback'] = str_replace('d3.', '', $library_name);
+  }
+
+  return $d3_libraries;
+}
+/**
  * Implements hook_graphapi_formats()
  */
 function d3_graphapi_formats() {
@@ -233,9 +271,31 @@ function d3_graphapi_settings_form($values) {
     '#type' => 'fieldset',
     '#title' => 'D3 settings',
   );
+  
+  $options = array();
+  foreach (d3_get_libraries() as $name => $library) {
+    $options[$name] = $library['name'];
+  }
+
+  $form[$engine]['library'] = array(
+    '#title' => 'Library',
+    '#type' => 'select',
+    '#options' => $options,
+    '#default_value' => variable_get('d3_graphapi_default_library', 'd3.forcedirected'),
+  );
+
+  $form[$engine]['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Save',
+    '#submit' => 'd3_graphapi_settings_form_submit',
+  );
 
   return $form;
   
+}
+
+function d3_graphapi_settings_form_submit(&$form, &$form_state) {
+  //dsm($form_state['values']['d3']);
 }
 
 
@@ -278,7 +338,7 @@ function theme_d3_graphapi($vars) {
   $graph = _d3_graphapi_format_graph_data($vars['graph']);
   $chart = array(
     'id' => 'visualization',
-    'type' => 'ForceDirected',
+    'type' => 'forcedirected',
     'links' => $graph['links'],
     'nodes' => $graph['nodes'],
     'config' => $vars['config'],
@@ -295,12 +355,9 @@ function theme_d3_graphapi($vars) {
  * @see views_object::option_definition()
  */
 function d3_graphapi_default_settings() {
-  $engine = 'd3';
-  $values = array();
-  return graphapi_settings_to_views($engine, $values);
+  return array(
+    'd3' => array(
+      'library' => array('default' => 'd3.forcedirected'),
+    ),
+  );
 }
-
-function template_preprocess_views_graphapi_style_d3(&$vars) {
-  dsm($vars);
-}
-
