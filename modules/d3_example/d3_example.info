@@ -1,5 +1,5 @@
 name = D3 Examples
-description = Some use cases of charts and graphs using the d3 module
+description = Several functions that outline the different uses of the D3 API 
 core = 7.x
 package = Visualization
 dependencies[] = d3
