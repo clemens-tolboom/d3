@@ -20,7 +20,7 @@ d3.splitString = function(str, w) {
     if(!endArray[pos])
       endArray[pos] = "";
 
-    if(endArray[pos].length < w) {
+    if(endArray[pos].length + strArray[i].length + 1 <= w) {
       endArray[pos] = [endArray[pos],strArray[i]].join(" ");
     } else {
       pos++;	
