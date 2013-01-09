@@ -167,6 +167,7 @@ function d3_example_libraries() {
     'd3.forcedirected', 
     'd3.linegraph',
     'd3.tooltip',
+    'd3.barchart',
   );
 }
 

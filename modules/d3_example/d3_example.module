@@ -24,6 +24,13 @@ function d3_example_menu() {
     'access callback' => TRUE,
     'page callback' => 'd3_example_column',
   );
+  
+  $items['examples/bar'] = array(
+    'title' => t('Bar chart example'),
+    'description' => t('Uses d3 module to create a sample bar chart'),
+    'access callback' => TRUE,
+    'page callback' => 'd3_example_bar',
+  );
 
   return $items;
 }
@@ -95,6 +102,37 @@ function d3_example_column() {
       array('2nd Quarter 2012',4,1,110,40),
     ),
   );
+
+  return d3_draw($chart);
+}
+
+function d3_example_bar() {
+
+  // Temporary data until I get randomization working.
+  $chart = array(
+    'id' => 'visualization',
+    'type' => 'BarChart',
+    'legend' => array(
+      '% Popular Support for Increasing State Tax on Corporations',
+      'Activists Mobilized',  
+      '% Statewide Champions',
+      'Leaders Trained'
+    ),
+    'rows' => array(
+      array('1st Quarter 2011'),
+      array('2nd Quarter 2011'),
+      array('3rd Quarter 2011'),
+      array('4th Quarter 2011'),
+      array('1st Quarter 2012'),
+      array('2nd Quarter 2012'),
+    ),
+  );
+  
+  for ($i = 0; $i < count($chart['rows']); $i++) {
+    for ($j = 0; $j < 4; $j++) {
+      array_push($chart['rows'][$i], rand(1, 70) * rand(1, 70) );
+    }
+  }
 
   return d3_draw($chart);
 }
