@@ -2,12 +2,13 @@
 /**
  * @author Alan Sherry http://drupal.org/user/941916
  * @file
+ * D3 API for creating visualizations with d3, and d3 libraries.
  *
  * Sponsored by http://www.freeflowdigital.com
  */
 
 /**
- * Implements hook_theme()
+ * Implements hook_theme().
  */
 function d3_theme() {
 
@@ -20,8 +21,8 @@ function d3_theme() {
       $theme_key = str_replace('.', '_', $library['machine name']);
       $themes[$theme_key] = array(
         'template' => $library['template'],
-        'path' => $library['library path'], 
-      );        
+        'path' => $library['library path'],
+      );
     }
   }
 
@@ -38,10 +39,10 @@ function d3_theme() {
   );
 
   return $themes;
-} 
+}
 
 /**
- * Implements hook_preprocess_[hook]
+ * Implements hook_preprocess_[hook].
  */
 function d3_preprocess_d3(&$variables) {
 
@@ -83,12 +84,12 @@ function d3_libraries_info_file_paths() {
 }
 
 /**
- * Implements hook_requirements()
+ * Implements hook_requirements().
  */
 function d3_requirements($phase) {
-  // @todo - 
+  // @todo -
   // This should not be version dependent.
-  // That defeats the purpose of using the libraries module for 
+  // That defeats the purpose of using the libraries module for
   // external libraries.
   $requirements = array();
   if ($phase == 'runtime') {
@@ -114,6 +115,9 @@ function d3_requirements($phase) {
   return $requirements;
 }
 
+/**
+ * Implements hook_libraries_info_alter().
+ */
 function d3_libraries_info_alter(&$libraries) {
 
   $path = drupal_get_path('module', 'd3') . '/libraries/';
@@ -160,11 +164,14 @@ function d3_libraries_info() {
   return $libraries;
 }
 
+/**
+ * Helper callback to return all sample libraries located inside this module.
+ */
 function d3_example_libraries() {
   return array(
-    'd3.columnchart', 
-    'd3.extend', 
-    'd3.forcedirected', 
+    'd3.columnchart',
+    'd3.extend',
+    'd3.forcedirected',
     'd3.linegraph',
     'd3.tooltip',
     'd3.barchart',
@@ -172,12 +179,12 @@ function d3_example_libraries() {
 }
 
 /**
- * D3's main API callback
+ * D3's main API callback.
  *
- * @param $vis
- *   Array. The chart data 
- * @return
- *   String. Rendered chart html
+ * @param array $vis
+ *   The chart data
+ * @return string
+ *   Rendered chart html
  */
 function d3_draw($vis) {
 
@@ -185,7 +192,7 @@ function d3_draw($vis) {
   $type = isset($vis['type']) ? strtolower($vis['type']) : NULL;
 
   if (!$type) {
-    drupal_set_message("No chart type specified");
+    drupal_set_message(t('No chart type specified'));
     return '';
   }
 
@@ -214,13 +221,16 @@ function d3_draw($vis) {
 
   }
   else {
-    drupal_set_message(t('Invalid chart type !type and/or library !library_name is not installed', array('!type' => $type, '!library_name' => $library_name)));
+    drupal_set_message(t('Invalid chart type %type and/or library %library_name is not installed', array(
+      '%type' => $type,
+      '%library_name' => $library_name
+    )));
     return '';
   }
 }
 
 /**
- * Provides an array of d3 libraries. 
+ * Provides an array of d3 libraries.
  *
  * D3 libraries are going to have a prefix of d3., see README.txt
  * for information on creating a custom d3 library.
@@ -239,7 +249,7 @@ function d3_get_libraries() {
     $library_name = $library['machine name'];
     // Filter out any other non-d3 library. All d3 libraries should have
     // the prefix "d3.".
-    if (strpos($library_name, 'd3.') === false) {
+    if (strpos($library_name, 'd3.') === FALSE) {
       continue;
     }
     // Do not list these default extension libraries.
@@ -254,7 +264,7 @@ function d3_get_libraries() {
   return $d3_libraries;
 }
 /**
- * Implements hook_graphapi_formats()
+ * Implements hook_graphapi_formats().
  */
 function d3_graphapi_formats() {
   return array(
@@ -263,16 +273,16 @@ function d3_graphapi_formats() {
 }
 
 /**
- * Implements hook_graphapi_settings_form()
+ * Implements hook_graphapi_settings_form().
  */
 function d3_graphapi_settings_form($values) {
- 
-  $engine = 'd3'; 
+
+  $engine = 'd3';
   $form[$engine] = array(
     '#type' => 'fieldset',
     '#title' => 'D3 settings',
   );
-  
+
   $options = array();
   foreach (d3_get_libraries() as $name => $library) {
     $options[$name] = $library['name'];
@@ -292,7 +302,7 @@ function d3_graphapi_settings_form($values) {
   );
 
   return $form;
-  
+
 }
 
 function d3_graphapi_settings_form_submit(&$form, &$form_state) {
@@ -300,6 +310,15 @@ function d3_graphapi_settings_form_submit(&$form, &$form_state) {
 }
 
 
+/**
+ * Converts $graph data array two arrays for links and nodes.
+ *
+ * @param array $graph
+ *   Associative array of nodes with link information and data.
+ *
+ * @return array
+ *   Links and nodes.  
+ */
 function _d3_graphapi_format_graph_data($graph) {
   $data = array();
   $indices = array();
@@ -318,10 +337,10 @@ function _d3_graphapi_format_graph_data($graph) {
       'group' => isset($node['data']['group']) ? $node['data']['group'] : 1,
       'data' => $node['data'],
     );
-    if(count($node['edges']) > 0) {
-      foreach($node['edges'] as $edge=>$edge_data) {
-        $value = isset($edge_data['data']['value']) ? (int) $edge_data['data']['value'] : null;
-         
+    if (count($node['edges']) > 0) {
+      foreach ($node['edges'] as $edge => $edge_data) {
+        $value = isset($edge_data['data']['value']) ? (int) $edge_data['data']['value'] : NULL;
+
         $data['links'][] = array(
           'data' => isset($edge_data['data']) ? $edge_data['data'] : array(),
           'source' => $index,
@@ -335,6 +354,9 @@ function _d3_graphapi_format_graph_data($graph) {
   return $data;
 }
 
+/**
+ * Displays the visualization for graphapi's selected library.
+ */
 function theme_d3_graphapi($vars) {
   $graph = _d3_graphapi_format_graph_data($vars['graph']);
   $chart = array(
@@ -353,7 +375,7 @@ function theme_d3_graphapi($vars) {
  * We reuse the default settings from thejit_forcedirected_default_settings.
  *
  * @see thejit_forcedirected_default_settings()
- * @see views_object::option_definition()
+ * @see Views_object::option_definition()
  */
 function d3_graphapi_default_settings() {
   return array(
