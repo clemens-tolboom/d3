@@ -3,6 +3,11 @@
 // rows: array of arrays. One array for each point of data
 // arrays have format array(label, data1, data2, data3, ...)
 
+/**
+ * @file
+ * Adds a function to generate a column chart to the `Drupal` object.
+ */
+
 (function($) {
 
   Drupal.d3.barchart = function (select, settings) {

@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Adds a function to generate a column chart to the `Drupal` object.
+ */
+
 (function($) {
 
   Drupal.d3.columnchart = function (select, settings) {
