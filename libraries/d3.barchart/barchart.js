@@ -55,46 +55,32 @@
       .enter().append("g")
       .attr("class","ticks")
       .attr('transform', function(d,i) { return 'translate(-4,'+(y(i) + (barGroupWidth/2))+')rotate(-55)'});
+
+
     yTicks.each(function(d, i) {
-        var text = yLabels[i].split(" ");
-        var pos = 0;
-        var box;
-        var total = 0;
-        while (pos < text.length) {
-          if (!box) {
-            box = d3.select(this).append('text')
-              .attr("dy", ".25em")
-              .attr('dx', -4)
-              .attr("text-anchor", "end").node();
-            this.appendChild(box);
-            total++;
+        var yspacing = 10;
+        var total = d3.svgSplitString(yLabels[i], 74, function(currentText, totalBoxes) {
+          var parent;
+          if (!currentText) {
+            parent = d3.select(this);
+          } else {
+            parent = d3.select(currentText);
           }
-          var old_HTML = box.textContent;
-          box.textContent += ' ' + text[pos];
-          var length = box.getComputedTextLength();
-          if (length > 74) {
-            box.textContent = old_HTML;
-            box = d3.select(box).append('text')
-              .attr('y', 12 * total)
-              .attr('x', -17.1 * total)
-              .attr("dy", ".25em")
-              .attr('dx', -4)
-              .attr("text-anchor", "end").node();
-            this.appendChild(box);
-            box.textContent = text[pos];
-            total++;
-          }
-          pos++;
-        }
-        d3.select(this).attr('transform', function(d) { return 'translate(-4,'+(y(i) + (barGroupWidth/2) - 21 * (total - 1) / 2)+')rotate(-55)'});
+          var box = parent.append('text')
+            .attr('y', yspacing * totalBoxes)
+            .attr('x', -yspacing /
+                  Math.cos(55/180*Math.PI) *
+                  Math.sin(55/180*Math.PI) * totalBoxes)
+            .attr("dy", ".35em")
+            .attr('dx', -4)
+            .attr("text-anchor", "end").node();
+          this.appendChild(box);
+          return box;
+        }.bind(this));
+        d3.select(this).attr('transform',
+            function(d) { return 'translate(-4,'+(y(i) + (barGroupWidth/2) -
+              yspacing / Math.cos(55/180*Math.PI) * (total - 1) / 2)+')rotate(-55)'});
       });
-    //yTicks.append("text")
-    //  .attr("dy", ".25em")
-    //  .attr("text-anchor", "start")
-    //  .attr('transform', function(d,i) { return "rotate(" + (35 - 90) + ")"; })
-    //  .text(function(d,i){ return yLabels[i]; })
-    //  .attr('x', function(d, i) { return this.getComputedTextLength() > 78 ? -78 : -this.getComputedTextLength();})
-    //  .attr('dx', -3);
 
     /* LINES */
     var rule = graph.selectAll("g.rule")
