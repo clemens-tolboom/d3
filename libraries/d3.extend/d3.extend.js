@@ -31,6 +31,24 @@ d3.splitString = function(str, w) {
   return endArray;
 }
 
+/**
+ * Helps create blocks of text that word wrap correctly using font size.
+ * 
+ * @param string str
+ *   String to split into multiple text elements.
+ * @param number w
+ *   Maximum width of a line in pixels
+ * @param function addText
+ *   Adds another text element to the document.
+ *   @param object currentText
+ *     Object containing the current text element's svg object.
+ *   @param int totalBoxes
+ *     The total number of boxes currently displayed.
+ *   @returns object currentText
+ *     Returns the new text element's svg object.
+ * @returns int totalBoxes
+ *   The total number of boxes used to display the string.
+ */
 d3.svgSplitString = function(str, w, addText) {
   var text = str.split(" ");
   var pos = 0;

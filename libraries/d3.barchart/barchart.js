@@ -56,9 +56,13 @@
       .attr("class","ticks")
       .attr('transform', function(d,i) { return 'translate(-4,'+(y(i) + (barGroupWidth/2))+')rotate(-55)'});
 
-
+    // This adds the labels to the ytick groups.
     yTicks.each(function(d, i) {
         var yspacing = 10;
+        // Calls a function from d3.extend to generate the labels.
+        // @param arg3 {function} This function is called when the line splitter
+        //  wants a new line of text. This callback allows the
+        //  customization of line placement.
         var total = d3.svgSplitString(yLabels[i], 74, function(currentText, totalBoxes) {
           var parent;
           if (!currentText) {
@@ -66,6 +70,7 @@
           } else {
             parent = d3.select(currentText);
           }
+          // Create the text element.
           var box = parent.append('text')
             .attr('y', yspacing * totalBoxes)
             .attr('x', -yspacing /
@@ -74,9 +79,11 @@
             .attr("dy", ".35em")
             .attr('dx', -4)
             .attr("text-anchor", "end").node();
+          // Add the text element to the document.
           this.appendChild(box);
           return box;
         }.bind(this));
+        // Final adjustments to the label height, based off of the total number of lines.
         d3.select(this).attr('transform',
             function(d) { return 'translate(-4,'+(y(i) + (barGroupWidth/2) -
               yspacing / Math.cos(55/180*Math.PI) * (total - 1) / 2)+')rotate(-55)'});
