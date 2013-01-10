@@ -168,6 +168,7 @@ function d3_example_libraries() {
     'd3.linegraph',
     'd3.tooltip',
     'd3.barchart',
+    'd3.piechart',
   );
 }
 
