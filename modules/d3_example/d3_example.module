@@ -106,6 +106,11 @@ function d3_example_column() {
   return d3_draw($chart);
 }
 
+/**
+ * Generates a random example bar graph.
+ * @return string
+ *   HTML for the page content.
+ */
 function d3_example_bar() {
 
   // Temporary data until I get randomization working.
@@ -114,20 +119,20 @@ function d3_example_bar() {
     'type' => 'BarChart',
     'legend' => array(
       '% Popular Support for Increasing State Tax on Corporations',
-      'Activists Mobilized',  
+      'Activists Mobilized',
       '% Statewide Champions',
       'Leaders Trained'
     ),
     'rows' => array(
-      array('1st Quarter 2011'),
+      array('Stupidly long label length that no one ever uses'),
       array('2nd Quarter 2011'),
       array('3rd Quarter 2011'),
       array('4th Quarter 2011'),
       array('1st Quarter 2012'),
-      array('2nd Quarter 2012'),
+      array('2012'),
     ),
   );
-  
+
   for ($i = 0; $i < count($chart['rows']); $i++) {
     for ($j = 0; $j < 4; $j++) {
       array_push($chart['rows'][$i], rand(1, 70) * rand(1, 70) );
