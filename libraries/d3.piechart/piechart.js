@@ -10,34 +10,19 @@
 
 (function($) {
 
-  Drupal.d3.barchart = function (select, settings) {
+  Drupal.d3.piechart = function (select, settings) {
 
-    var rows = settings.rows,
-      // Use first value in each row as the label.
-      yLabels = rows.map(function(d) { return d.shift(); })
-      key = settings.legend,
-      // From inside out:
-      // - Convert all values to numeric numbers.
-      // - Merge all sub-arrays into one flat array.
-      // - Return the highest (numeric) value from flat array.
-      max = d3.max(d3.merge(settings.rows).map(function(d) { return +d; })),
+    var wedges = settings.wedges,
+      // Each wedge has a label and a value
+      key = wedges.map(function(d) { return d.label; }),
       // Padding is top, right, bottom, left as in css padding.
       p = [10, 50, 30, 50],
-      w = 800,
+      w = 700,
       h = 400,
-      // chart is 65% and 80% of overall height
-      chart = {w: w * .65, h: h * .80},
-      legend = {w: w * .35, h:h},
-      // bar width is calculated based on chart width, and amount of data
-      // items - will resize if there is more or less
-      barWidth = ((.90 * chart.h) / (rows.length * key.length)),
-      // each cluster of bars - makes coding later easier
-      barGroupWidth = (key.length * barWidth),
-      // space in between each set
-      barSpacing = (.10 * chart.h) / rows.length,
-      x = d3.scale.linear().domain([0,max]).range([0,chart.w]),
-      y = d3.scale.linear().domain([0,rows.length]).range([0, chart.h]),
-      z = d3.scale.ordinal().range(["blue", "red", "orange", "green"]),
+      // chart is as big as possible.
+      radius = Math.min(w, h) / 2,
+      legend = {w: w - radius * 2, h:h},
+      color = d3.scale.ordinal().range(["blue", "red", "orange", "green"]),
       div = (settings.id) ? settings.id : 'visualization';
 
     var svg = d3.select('#' + div).append("svg")
@@ -47,103 +32,43 @@
       .attr("transform", "translate(" + p[3] + "," + p[0] + ")");
 
     var graph = svg.append("g")
-      .attr("class", "chart");
+      .attr("class", "chart")
+      .attr('transform', 'translate(' + radius + ',' + radius + ')');
 
-    /* Y AXIS  */
-    var yTicks = graph.selectAll("g.ticks")
-      .data(rows)
+    var arc = d3.svg.arc()
+        .outerRadius(radius - 10)
+        .innerRadius(0);
+    
+    var circle = d3.svg.arc()
+        .outerRadius(radius - 10)
+        .innerRadius(radius - 10);
+
+    var pie = d3.layout.pie()
+        .sort(null)
+        .value(function(d) { return d.value; });
+
+    var g = graph.selectAll(".arc")
+        .data(pie(wedges))
       .enter().append("g")
-      .attr("class","ticks")
-      .attr('transform', function(d,i) { return 'translate(-4,'+(y(i) + (barGroupWidth/2))+')rotate(-55)'});
-    yTicks.each(function(d, i) {
-        var text = yLabels[i].split(" ");
-        var pos = 0;
-        var box;
-        var total = 0;
-        while (pos < text.length) {
-          if (!box) {
-            box = d3.select(this).append('text')
-              .attr("dy", ".25em")
-              .attr('dx', -4)
-              .attr("text-anchor", "end").node();
-            this.appendChild(box);
-            total++;
-          }
-          var old_HTML = box.textContent;
-          box.textContent += ' ' + text[pos];
-          var length = box.getComputedTextLength();
-          if (length > 74) {
-            box.textContent = old_HTML;
-            box = d3.select(box).append('text')
-              .attr('y', 12 * total)
-              .attr('x', -17.1 * total)
-              .attr("dy", ".25em")
-              .attr('dx', -4)
-              .attr("text-anchor", "end").node();
-            this.appendChild(box);
-            box.textContent = text[pos];
-            total++;
-          }
-          pos++;
-        }
-        d3.select(this).attr('transform', function(d) { return 'translate(-4,'+(y(i) + (barGroupWidth/2) - 21 * (total - 1) / 2)+')rotate(-55)'});
-      });
-    //yTicks.append("text")
-    //  .attr("dy", ".25em")
-    //  .attr("text-anchor", "start")
-    //  .attr('transform', function(d,i) { return "rotate(" + (35 - 90) + ")"; })
-    //  .text(function(d,i){ return yLabels[i]; })
-    //  .attr('x', function(d, i) { return this.getComputedTextLength() > 78 ? -78 : -this.getComputedTextLength();})
-    //  .attr('dx', -3);
+        .attr("class", "arc");
 
-    /* LINES */
-    var rule = graph.selectAll("g.rule")
-      .data(x.ticks(4))
-      .enter().append("g")
-      .attr("class", "rule")
-      .attr("transform", function(d) { return "translate(" + x(d) + "," + chart.h + ")"; });
+    g.append("path")
+        .attr("d", arc)
+        .style("fill", function(d, i) { return color(i); })
+        .on('mouseover', showToolTip)
+        .on('mouseout', hideToolTip)
+        .attr('class', function(d, i) { return 'color_' + color(i); });
 
-    rule.append("line")
-      .attr("y2", -chart.h)
-      .style("stroke", function(d) { return d ? "#ccc" : "#000"; })
-      .style("stroke-opacity", function(d) { return d ? .7 : null; });
-
-    /* X AXIS */
-    rule.append("text")
-      .attr("y", 15)
-      .attr("text-anchor", "end")
-      .text(d3.format(",d"))
-      .attr("x", function(d) {return this.getComputedTextLength() / 2;});
-
-    var bar = graph.selectAll('g.bars')
-      .data(rows)
-      .enter().append('g')
-      .attr('class', 'bargroup')
-      .attr('transform', function(d,i) { return "translate(0, " + i * (barGroupWidth + barSpacing) + ")"; });
-
-    bar.selectAll('rect')
-      .data(function(d) { return d; })
-      .enter().append('rect')
-      //.attr("width", 0)
-      .attr("width", function(d) { return x(d); })
-      .attr("height", barWidth)
-      .attr('x', function (d,i) { return 0; })
-      .attr('y', function (d,i) { return i * barWidth; })
-      .attr('fill', function(d,i) { return d3.rgb(z(i)); })
-      .attr("class", function(d,i) {return "color_" + z(i); })
-      .on('mouseover', function(d, i) { showToolTip(d, i, this); })
-      .on('mouseout', function(d, i) { hideToolTip(d, i, this); })
-      ;
-      //.transition()
-      //.duration(function(d) { return 750 * x(d) / x(max); })
-      //.ease('linear')
-      //.attr('width', function(d) { return x(d); });
-
+    /*g.append("text")
+        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .text(function(d) { return d.data.label; });*/
 
     /* LEGEND */
     var legend = svg.append("g")
       .attr("class", "legend")
-      .attr("transform", "translate("+(chart.w+20)+","+0+")");
+      .attr("transform", "translate("+(radius * 2+20)+","+0+")");
 
     var keys = legend.selectAll("g")
       .data(key)
@@ -151,8 +76,8 @@
       .attr("transform", function(d,i) { return "translate(0,"+d3.tileText(d,15)+")"});
 
     keys.append("rect")
-      .attr("fill", function(d,i) { return d3.rgb(z(i)); })
-      .attr("class", function(d,i) {return "color_" + z(i); })
+      .attr("fill", function(d,i) { return d3.rgb(color(i)); })
+      .attr("class", function(d,i) {return "color_" + color(i); })
       .attr("width", 16)
       .attr("height", 16)
       .attr("y", 0)
@@ -169,16 +94,15 @@
       .attr("x", 20)
       .attr("y", function(d,i) {  return i*20} )
       .attr("dy", "1em");
- 
 
-    function showToolTip(d, i, obj) {
+    function showToolTip(d, i) {
       // change color and style of the bar
-      var bar = d3.select(obj);
+      var bar = d3.selectAll('.color_' + color(i));
       bar.attr('stroke', '#ccc')
         .attr('stroke-width', '1')
         .attr('opacity', '0.75');
 
-      var group = d3.select(obj.parentNode);
+      var group = d3.select(this.parentNode);
 
       var tooltip = graph.append('g')
         .attr('class', 'tooltip')
@@ -186,15 +110,15 @@
         .attr('transform', function(data) { return group.attr('transform'); })
           .append('g')
         // now move to the actual x and y of the bar within that group 
-        .attr('transform', function(data) { return 'translate(' + x(d) +',' +  (Number(bar.attr('y')) + barWidth / 2) + ')'; });
+        .attr('transform', function(data) { return 'translate(' + circle.centroid(d) + ')'; });
 
 
-      d3.tooltip(tooltip, d);
+      d3.tooltip(tooltip, d.data.value);
     }
 
-    function hideToolTip(d, i, obj) {
-      var group = d3.select(obj.parentNode);
-      var bar = d3.select(obj);
+    function hideToolTip(d, i) {
+      var group = d3.select(this.parentNode);
+      var bar = d3.selectAll('.color_' + color(i));
       bar.attr('stroke-width', '0')
         .attr('opacity', 1);
 
@@ -203,14 +127,14 @@
     }
     
     function highlightBars(d, i) {
-      var like_color = d3.selectAll('.color_' + z(i));
+      var like_color = d3.selectAll('.color_' + color(i));
       like_color.attr('stroke', '#ccc')
         .attr('stroke-width', '1')
         .attr('opacity', '0.75');
     }
     
     function unhighlightBars(d, i) {
-      var like_color = d3.selectAll('.color_' + z(i));
+      var like_color = d3.selectAll('.color_' + color(i));
       like_color.attr('stroke-width', '0')
         .attr('opacity', 1);
     }
