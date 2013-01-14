@@ -1,21 +1,27 @@
 /**
  * @file
- * D3 Force Directed library
+ * D3 Module Depedencies library
  */
 
 (function($) {
-  Drupal.d3.forcedirected = function (select, settings) {
+  Drupal.d3.module_dependencies = function (select, settings) {
+    var width   = (settings.config.width || 300),
+        height  = (settings.config.height || 300),
+        nodes   = settings.nodes,
+        links   = settings.links,
+        z       = d3.scale.ordinal().range(["blue", "red", "orange", "green"]),
+        k       = Math.sqrt(nodes.length / (width * height)),
+        color   = d3.scale.category20();
 
-    var width  = (settings.config.width || 300),
-        height = (settings.config.height || 300),
-        nodes  = settings.nodes,
-        links  = settings.links,
-        z      = d3.scale.ordinal().range(["blue", "red", "orange", "green"]),
-        k      = Math.sqrt(nodes.length / (width * height)),
-        color  = d3.scale.category20();
+    // Add an attribute to each node that is a source node so that we can
+    // use that attribute to style them differently.
+    links.map(function(d) { nodes[d.target].is_source = true; });
 
     var force = d3.layout.force()
-      .size([width, height]);
+      .size([width, height])
+      .charge(-100)
+      .distance(100)
+      .gravity(.05);
 
     // additional settings for the advanced force directed graphs
     if (settings.gravity) {
@@ -33,10 +39,6 @@
     if (settings.linkDistance) {
       force.linkDistance(settings.linkDistance)
     }
-
-    force.charge(-100);
-    force.distance(100);
-    force.gravity(.05);
 
     var svg = d3.select('#' + settings.id).append("svg")
         .attr("width", width)
@@ -66,10 +68,10 @@
 
       nodeEnter.append("svg:circle")
         .attr("class", "node")
-        .attr("r", function(d) { console.log(d); return (d.data.d) ? d.data.d : 5; })
-        .style("fill", d3.hsl('white'))
+        .attr("r", function(d) { return (d.is_source) ? 7 : 5; })
+        .style("fill", function (d) { return (d.is_source) ? d3.hsl('black') : d3.hsl('white'); })
         .style("stroke", function(d) { return d3.hsl(d.data.fill); })
-        .style("stroke-width", 3);
+        .style("stroke-width", function(d) { return (d.is_source) ? 0 : 3; });
 
     nodeEnter.append("svg:text")
         .attr("class", "nodetext")

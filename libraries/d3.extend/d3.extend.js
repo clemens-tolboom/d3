@@ -1,4 +1,9 @@
 /**
+ * @file
+ * Extends d3 with helper functions.
+ */
+
+/**
  * helper function to adjust Y axis based on how many text lines
  */
 d3.tileText = function(str, w) {
