@@ -72,3 +72,23 @@ d3.svgSplitString = function(str, w, addText) {
   }
   return total;
 }
+
+d3.elipses = function(str, box, width) {
+  box.textContent = str;
+  if (box.getComputedTextLength() > 78){
+    var index = 0;
+    var text = '';
+    var elipses = '...';
+    box.textContent = text + elipses;
+    var oldContent;
+    while (box.getComputedTextLength() <= 78) {
+      text += str[index];
+      index += 1;
+      var oldContent = box.textContent;
+      box.textContent = text + elipses;
+    }
+    if (oldContent) {
+      box.textContent = oldContent;
+    }
+  }
+}
