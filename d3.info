@@ -3,4 +3,3 @@ description = An API for creating visualizations from D3 libraries
 core = 7.x
 dependencies[] = libraries (>=2.0)
 package = Visualization
-
