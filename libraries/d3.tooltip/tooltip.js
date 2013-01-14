@@ -64,29 +64,29 @@
         .attr('stroke-width', function(d) { return (x == 0) ? 1 : 0; });
     }
 
-      var offset = (tooltip.w / 2) - (tooltip.tipO - tooltip.tipW);
-    
-      var textbox = tipjar.append('g')
-        .attr('class', 'text')
-        .attr('transform', function(d) { return 'translate(-' + offset + ',-'+ tooltip.h +')'; });
+    var offset = (tooltip.w / 2) - (tooltip.tipO - tooltip.tipW);
+  
+    var textbox = tipjar.append('g')
+      .attr('class', 'text')
+      .attr('transform', function(d) { return 'translate(-' + offset + ',-'+ tooltip.h +')'; });
 
-      textbox.append('text')
-        .text('Value:')
-        .attr('text-anchor', 'start')
-        .attr('dx', 5)
-        .attr('dy', 8)
-        .attr('font-family', 'Arial,sans-serif')
-        .attr('font-size', '12')
-        .attr('font-weight', 'bold');
+    textbox.append('text')
+      .text('Value:')
+      .attr('text-anchor', 'start')
+      .attr('dx', 5)
+      .attr('dy', 8)
+      .attr('font-family', 'Arial,sans-serif')
+      .attr('font-size', '12')
+      .attr('font-weight', 'bold');
 
-      textbox.append('text')
-        .text(txt)
-        .attr('text-anchor', 'start')
-        .attr('dx', 5)
-        .attr('dy', 25)
-        .attr('font-family', 'Arial,sans-serif')
-        .attr('font-size', '12')
-        .attr('font-weight', 'normal');
+    textbox.append('text')
+      .text(txt)
+      .attr('text-anchor', 'start')
+      .attr('dx', 5)
+      .attr('dy', 25)
+      .attr('font-family', 'Arial,sans-serif')
+      .attr('font-size', '12')
+      .attr('font-weight', 'normal');
   }
 
 })(jQuery);
