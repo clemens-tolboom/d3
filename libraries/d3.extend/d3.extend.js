@@ -73,15 +73,27 @@ d3.svgSplitString = function(str, w, addText) {
   return total;
 }
 
-d3.elipses = function(str, box, width) {
+/**
+ * Takes a text element, and adds ellipses if it goes over a certain length.
+ *
+ * @param string str
+ *   The string to display
+ * @param svgObject box
+ *   The text element that the text will go into.
+ * @param float width
+ *   The maximum width of the text element.
+ *
+ * @return none.
+ */
+d3.ellipses = function(str, box, width) {
   box.textContent = str;
-  if (box.getComputedTextLength() > 78){
+  if (box.getComputedTextLength() > width){
     var index = 0;
     var text = '';
     var elipses = '...';
     box.textContent = text + elipses;
     var oldContent;
-    while (box.getComputedTextLength() <= 78) {
+    while (box.getComputedTextLength() <= width) {
       text += str[index];
       index += 1;
       var oldContent = box.textContent;

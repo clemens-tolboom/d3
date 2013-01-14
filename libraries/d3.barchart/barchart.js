@@ -63,7 +63,7 @@
             .attr('dx', -4)
             .attr("text-anchor", "end").node();
         this.appendChild(box);
-        d3.elipses(yLabels[i], box, 78);
+        d3.ellipses(yLabels[i], box, 78);
       });
 
     /* LINES */
