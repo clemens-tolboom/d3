@@ -76,7 +76,7 @@ function d3_libraries_info_file_paths() {
   $example_path = drupal_get_path('module', 'd3') . '/libraries/';
 
   // add these to the search directories for libraries
-  foreach (d3_example_libraries() as $example) {
+  foreach (d3_default_libraries() as $example) {
     $paths[] = $example_path . $example;
   }
 
@@ -87,32 +87,67 @@ function d3_libraries_info_file_paths() {
  * Implements hook_requirements().
  */
 function d3_requirements($phase) {
-  // @todo -
-  // This should not be version dependent.
-  // That defeats the purpose of using the libraries module for
-  // external libraries.
   $requirements = array();
-  if ($phase == 'runtime') {
-    $t = get_t();
-    if ($path = libraries_get_path('d3')) {
-      if (file_exists($path . '/d3.v3.min.js')) {
-        $requirements['d3'] = array(
-          'title' => $t('D3'),
-          'value' => $t('d3.v3.min.js found under !path', array('!path' => $path . '/d3.v3.min.js')),
-          'severity' => REQUIREMENT_OK,
-        );
-        return $requirements;
+  // Run only for reporting.
+  if ($phase != 'runtime') {
+    return $requirements;
+  }
+
+  // If this is run during install we'll need to use get_t instead of 
+  // just t
+  $t = get_t();
+  // If the library directory exists.
+  if ($path = libraries_get_path('d3')) {
+    // Check for a d3 javascript file, ignoring the version and if it is
+    // minified or not.
+    if ($files = file_scan_directory($path, '/d3.*.js/')) {
+      $requirements['d3'] = array(
+        'title' => $t('D3'),
+        'value' => '',
+        'severity' => REQUIREMENT_OK,
+      );
+
+      // Return a list of all the files that exist.
+      foreach ($files as $file) {
+        $requirements['d3']['value'] .= $file->filename . ' ';
       }
+
+      // Report has passed.
+      $requirements['d3']['value'] .= $t('found under !path', array('!path' => $path));
     }
+    else {
+      // If there are no javascript files, then there was a problem
+      // installing the library.
+      $requirements['d3'] = array(
+        'title' => $t('D3'),
+        'value' => isset($lib['error message']) 
+          ? $t($lib['error message']) 
+          : t('The d3 library has not been installed properly. Check your folder 
+            !path and ensure your d3.[version].js file is located inside that 
+            folder, and not in a subfolder.', array('!path' => $path)),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+
+    return $requirements;
+  }
+  else {
+    // If there is no library at all, chances are they have not downloaded
+    // and tried installing D3 yet.
     $requirements['d3'] = array(
       'title' => $t('D3'),
-      'value' => isset($lib['error message']) ? $t($lib['error message']) : t('D3 library was not found. !download the library and place in under sites/all/libraries/d3, so that the library can be found at sites/all/libraries/d3/d3.v3.min.js.', array(
-        '!download' => l(t('Download'), 'https://github.com/mbostock/d3'))
+      'value' => isset($lib['error message'])
+        ? $t($lib['error message'])
+        : t('D3 library was not found. !download the library and place all javascript 
+          files in a folder entitled "d3" located in your default libraries folder. 
+          E.g. If you download version 3 minified, it would be located 
+          in path/to/libraries/d3/d3.v3.min.js.', array('!download' => l(t('Download'), 'https://github.com/mbostock/d3'))
       ),
       'severity' => REQUIREMENT_ERROR,
     );
+
+    return $requirements;
   }
-  return $requirements;
 }
 
 /**
@@ -122,7 +157,7 @@ function d3_libraries_info_alter(&$libraries) {
 
   $path = drupal_get_path('module', 'd3') . '/libraries/';
 
-  foreach (d3_example_libraries() as $library_name) {
+  foreach (d3_default_libraries() as $library_name) {
     $libraries[$library_name]['library path'] = $path . $library_name;
   }
 }
@@ -167,11 +202,12 @@ function d3_libraries_info() {
 /**
  * Helper callback to return all sample libraries located inside this module.
  */
-function d3_example_libraries() {
+function d3_default_libraries() {
   return array(
     'd3.columnchart',
     'd3.extend',
     'd3.forcedirected',
+    'd3.module_dependencies',
     'd3.linegraph',
     'd3.tooltip',
     'd3.barchart',
@@ -286,28 +322,33 @@ function d3_graphapi_settings_form($values) {
 
   $options = array();
   foreach (d3_get_libraries() as $name => $library) {
-    $options[$name] = $library['name'];
+    $options[$library['js callback']] = $library['name'];
   }
-
   $form[$engine]['library'] = array(
-    '#title' => 'Library',
+    '#title' => 'Default library',
+    '#description' => t('Use this d3 library as the default to render graphapi visualizations'),
     '#type' => 'select',
     '#options' => $options,
-    '#default_value' => variable_get('d3_graphapi_default_library', 'd3.forcedirected'),
+    '#default_value' => variable_get('d3_graphapi_default_library', 'forcedirected'),
   );
 
   $form[$engine]['submit'] = array(
     '#type' => 'submit',
     '#value' => 'Save',
-    '#submit' => 'd3_graphapi_settings_form_submit',
+    '#submit' => array('d3_graphapi_settings_form_submit'),
   );
 
   return $form;
 
 }
 
+/**
+ * Submit handler for the graphapi settings form.
+ *
+ * @see d3_graphapi_settings_form()
+ */
 function d3_graphapi_settings_form_submit(&$form, &$form_state) {
-  //dsm($form_state['values']['d3']);
+  variable_set('d3_graphapi_default_library', $form_state['values']['library']);
 }
 
 
@@ -318,7 +359,7 @@ function d3_graphapi_settings_form_submit(&$form, &$form_state) {
  *   Associative array of nodes with link information and data.
  *
  * @return array
- *   Links and nodes.  
+ *   Links and nodes.
  */
 function _d3_graphapi_format_graph_data($graph) {
   $data = array();
@@ -359,10 +400,12 @@ function _d3_graphapi_format_graph_data($graph) {
  * Displays the visualization for graphapi's selected library.
  */
 function theme_d3_graphapi($vars) {
+  $library = variable_get('d3_graphapi_default_library', 'forcedirected');
+
   $graph = _d3_graphapi_format_graph_data($vars['graph']);
   $chart = array(
     'id' => 'visualization',
-    'type' => 'forcedirected',
+    'type' => $library,
     'links' => $graph['links'],
     'nodes' => $graph['nodes'],
     'config' => $vars['config'],
@@ -376,7 +419,7 @@ function theme_d3_graphapi($vars) {
  * We reuse the default settings from thejit_forcedirected_default_settings.
  *
  * @see thejit_forcedirected_default_settings()
- * @see Views_object::option_definition()
+ * @see views_object::option_definition()
  */
 function d3_graphapi_default_settings() {
   return array(
