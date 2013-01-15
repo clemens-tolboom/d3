@@ -63,7 +63,7 @@
       .attr('dx', 15)
       .attr("text-anchor", "end")
       .text(function(d, i) { return yLabels[i]; })
-      .elipse(60);
+      .ellipsis(60);
 
     /* LINES */
     var rule = graph.selectAll("g.rule")

@@ -79,6 +79,39 @@ d3.svgSplitString = function(str, w, addText) {
 }
 
 /**
+ * Provides a maximum width that a text box should be, and iterates from the
+ * end of the text value (textContent) to the beginning until the width matches
+ * the parameter.
+ *
+ * @param int|function value 
+ *   Either a dynamic function that calculates a width, or a static number.
+ *
+ * @return none.
+ */
+d3.selection.prototype.ellipsis = function(value) {
+  return arguments.length ? this.each(typeof value === "function" ? function() {
+    // If a dynamic function was passed
+  } : value == null ? function() {
+    this.textContent = "";
+  } : function() {
+    // If this is just a static value and not a function
+
+    // Do not do anything if this is already the right length.
+    if (this.clientWidth > value) {
+      // Starting string.
+      this.textContent += '...';
+      // Index of the last character of the string (without the ...).
+      var index = this.textContent.length - 3;
+      while (this.clientWidth >= value) {
+        // Shrink string by one character, and add in again the ellipsis.
+        this.textContent = this.textContent.substr(0, index) + '...';
+        index--;
+      }
+    }
+  }) : this.node().textContent;
+}
+
+/**
  * Takes a text element, and adds ellipses if it goes over a certain length.
  *
  * @param string str
