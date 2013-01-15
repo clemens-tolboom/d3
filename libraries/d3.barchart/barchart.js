@@ -35,7 +35,7 @@
       barGroupWidth = (key.length * barWidth),
       // space in between each set
       barSpacing = (.10 * chart.h) / rows.length,
-      x = d3.scale.linear().domain([0,max]).range([0,chart.w]),
+      x = d3.scale.linear().domain([0,max]).range([20,chart.w]),
       y = d3.scale.linear().domain([0,rows.length]).range([0, chart.h]),
       z = d3.scale.ordinal().range(["blue", "red", "orange", "green"]),
       div = (settings.id) ? settings.id : 'visualization';
@@ -54,17 +54,16 @@
       .data(rows)
       .enter().append("g")
       .attr("class","ticks")
-      .attr('transform', function(d,i) { return 'translate(-4,'+(y(i) + (barGroupWidth/2))+')rotate(-55)'});
+      .attr('width', 50)
+      .attr('transform', function(d,i) { return 'translate(-4,'+(y(i) + (barGroupWidth/2))+')'});
 
     // This adds the labels to the ytick groups.
-    yTicks.each(function(d, i) {
-        var box = d3.select(this).append('text')
-            .attr("dy", ".35em")
-            .attr('dx', -4)
-            .attr("text-anchor", "end").node();
-        this.appendChild(box);
-        d3.ellipses(yLabels[i], box, 78);
-      });
+    yTicks.append('text')
+      .attr("dy", ".35em")
+      .attr('dx', 15)
+      .attr("text-anchor", "end")
+      .text(function(d, i) { return yLabels[i]; })
+      .elipse(60);
 
     /* LINES */
     var rule = graph.selectAll("g.rule")
@@ -89,7 +88,7 @@
       .data(rows)
       .enter().append('g')
       .attr('class', 'bargroup')
-      .attr('transform', function(d,i) { return "translate(0, " + i * (barGroupWidth + barSpacing) + ")"; });
+      .attr('transform', function(d,i) { return "translate(20, " + i * (barGroupWidth + barSpacing) + ")"; });
 
     bar.selectAll('rect')
       .data(function(d) { return d; })
