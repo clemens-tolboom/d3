@@ -1,12 +1,15 @@
-// Notes on data formatting:
-// legend: array of text values. Length is number of data types.
-// rows: array of arrays. One array for each point of data
-// arrays have format array(label, data1, data2, data3, ...)
-
 /**
  * @file
  * Adds a function to generate a column chart to the `Drupal` object.
  */
+
+/**
+ * Notes on data formatting:
+ * legend: array of text values. Length is number of data types.
+ * rows: array of arrays. One array for each point of data
+ * arrays have format array(label, data1, data2, data3, ...)
+ */
+
 
 (function($) {
 
@@ -50,20 +53,23 @@
     var g = graph.selectAll(".arc")
         .data(pie(wedges))
       .enter().append("g")
-        .attr("class", "arc");
+        .attr("class", function(d, i) { return "arc arc-" + i; });
 
     g.append("path")
         .attr("d", arc)
         .style("fill", function(d, i) { return color(i); })
-        .on('mouseover', showToolTip)
-        .on('mouseout', hideToolTip)
-        .attr('class', function(d, i) { return 'color_' + color(i); });
+        .style('stroke', '#fff')
+        .style('stroke-width', 1)
+        .on('mouseover', function(d, i) { interact('over', i); })
+        .on('mouseout', function(d, i) { interact('out', i); })
+        .attr('class', function(d, i) { return 'color_' + color(i) + ' arc-' + i; });
 
-    /*g.append("text")
+    g.append("text")
         .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
         .attr("dy", ".35em")
         .style("text-anchor", "middle")
-        .text(function(d) { return d.data.label; });*/
+        .style('fill', 'white')
+        .text(function(d, i) { return percent(i); });
 
     /* LEGEND */
     var legend = svg.append("g")
@@ -82,8 +88,8 @@
       .attr("height", 16)
       .attr("y", 0)
       .attr("x", 0)
-      .on('mouseover', highlightBars)
-      .on('mouseout', unhighlightBars);
+      .on('mouseover', function(d, i) { interact('over', i); })
+      .on('mouseout', function(d, i) { interact('out', i); });
 
     var labelWrapper = keys.append("g");
 
@@ -95,29 +101,57 @@
       .attr("y", function(d,i) {  return i*20} )
       .attr("dy", "1em");
 
-    function showToolTip(d, i) {
-      // change color and style of the bar
-      var bar = d3.selectAll('.color_' + color(i));
-      bar.attr('stroke', '#ccc')
-        .attr('stroke-width', '1')
-        .attr('opacity', '0.75');
+    /**
+     * Wrapper function for all rollover functions.
+     *
+     * @param string text
+     *   Current state, 'over', or 'out'.
+     * @param int i
+     *   Current index of the current data row.
+     * @return none
+     */
+    function interact(state, i) {
+      if (state == 'over') {
+        showToolTip(i);
+        highlightSlice(i);
+      }
+      else {
+        hideToolTip(i);
+        unhighlightSlice(i);
+      }
+      return true;
+    }
 
-      var group = d3.select(this.parentNode);
-
+    /**
+     * Displays a tooltip on the centroid of a pie slice.
+     *
+     * @param int i
+     *   Index of the current data row.
+     * @return none
+     */
+    function showToolTip(i) {
+      var data = pie(wedges);
       var tooltip = graph.append('g')
         .attr('class', 'tooltip')
         // move to the x position of the parent group
-        .attr('transform', function(data) { return group.attr('transform'); })
           .append('g')
         // now move to the actual x and y of the bar within that group 
-        .attr('transform', function(data) { return 'translate(' + circle.centroid(d) + ')'; });
+        .attr('transform', function(d) { return 'translate(' + circle.centroid(data[i]) + ')'; });
 
-
-      d3.tooltip(tooltip, d.data.value);
+      d3.tooltip(tooltip, wedges[i].value);
     }
 
-    function hideToolTip(d, i) {
-      var group = d3.select(this.parentNode);
+    /**
+     * Hides tooltip for a given class. Each slice has a unique class in
+     * this chart.
+     *
+     * @param int i
+     *   Index of the current data row.
+     * @return none
+     */
+    function hideToolTip(i) {
+      var group = d3.select('g.arc-' + i);
+
       var bar = d3.selectAll('.color_' + color(i));
       bar.attr('stroke-width', '0')
         .attr('opacity', 1);
@@ -125,20 +159,40 @@
       graph.select('g.tooltip').remove();
 
     }
-    
-    function highlightBars(d, i) {
+
+    /**
+     * Changes appearance of group to have an outer border.
+     *
+     * @param int i
+     *   Index of the current data row.
+     * @return none
+     */
+    function highlightSlice(i) {
       var like_color = d3.selectAll('.color_' + color(i));
       like_color.attr('stroke', '#ccc')
         .attr('stroke-width', '1')
         .attr('opacity', '0.75');
     }
-    
-    function unhighlightBars(d, i) {
+   
+    /**
+     * Revert slice back to init state.
+     *
+     * @param int i
+     *   Index of the current data row.
+     * @return none
+     */
+    function unhighlightSlice(i) {
       var like_color = d3.selectAll('.color_' + color(i));
       like_color.attr('stroke-width', '0')
         .attr('opacity', 1);
     }
 
+    function percent(i) {
+      var sum = d3.sum(wedges.map(function(d,i) { return d.value; }));
+      var val = wedges[i].value;
+
+      return ((val / sum) ? Math.round((val / sum) * 100) : 0) + '%';
+    }
   }
 
 })(jQuery);
