@@ -97,12 +97,12 @@ d3.selection.prototype.ellipsis = function(value) {
     // If this is just a static value and not a function
 
     // Do not do anything if this is already the right length.
-    if (this.clientWidth > value) {
+    if (this.getComputedTextLength() > value) {
       // Starting string.
       this.textContent += '...';
       // Index of the last character of the string (without the ...).
       var index = this.textContent.length - 3;
-      while (this.clientWidth >= value) {
+      while (this.getComputedTextLength() >= value) {
         // Shrink string by one character, and add in again the ellipsis.
         this.textContent = this.textContent.substr(0, index) + '...';
         index--;
