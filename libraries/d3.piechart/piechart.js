@@ -19,14 +19,16 @@
       // Each wedge has a label and a value
       key = wedges.map(function(d) { return d.label; }),
       // Padding is top, right, bottom, left as in css padding.
-      p = [10, 50, 30, 50],
+      p = [10, 50, 15, 15],
       w = 700,
       h = 400,
-      // chart is as big as possible.
-      radius = Math.min(w, h) / 2,
-      legend = {w: w - radius * 2, h:h},
+      // Chart diameter is w or h, (whichever is smaller) - padding.
+      radius = Math.min((w - p[1] - p[3]), (h - p[0] - p[2])) / 2,
+      // Maximum width and height for the legend minus padding.
+      legend = {w: (w - p[3] - p[1] - radius * 2), h: h - p[0] - p[2]},
       color = d3.scale.ordinal().range(["blue", "red", "orange", "green"]),
       div = (settings.id) ? settings.id : 'visualization';
+
 
     var svg = d3.select('#' + div).append("svg")
       .attr("width", w)
@@ -41,7 +43,13 @@
     var arc = d3.svg.arc()
         .outerRadius(radius - 10)
         .innerRadius(0);
-    
+
+    // Background arc that will act as a rollover.
+    var arc_effect = d3.svg.arc()
+        .outerRadius(radius)
+        .innerRadius(radius - 10);
+   
+    // Main arc that will be visible at all time.
     var circle = d3.svg.arc()
         .outerRadius(radius - 10)
         .innerRadius(radius - 10);
@@ -50,10 +58,17 @@
         .sort(null)
         .value(function(d) { return d.value; });
 
+    /* MAIN CHART */
     var g = graph.selectAll(".arc")
         .data(pie(wedges))
       .enter().append("g")
         .attr("class", function(d, i) { return "arc arc-" + i; });
+
+    g.append("path")
+        .attr("d", arc_effect)
+        .attr('fill', '#fff')
+        .attr('fill-opacity', 0)
+        .attr('class', function(d, i) { return 'arc-' + i + '-over'; });
 
     g.append("path")
         .attr("d", arc)
@@ -74,7 +89,7 @@
     /* LEGEND */
     var legend = svg.append("g")
       .attr("class", "legend")
-      .attr("transform", "translate("+(radius * 2+20)+","+0+")");
+      .attr("transform", "translate("+ (radius * 2 + p[3]) +"," + p[0] + ")");
 
     var keys = legend.selectAll("g")
       .data(key)
@@ -168,10 +183,9 @@
      * @return none
      */
     function highlightSlice(i) {
-      var like_color = d3.selectAll('.color_' + color(i));
-      like_color.attr('stroke', '#ccc')
-        .attr('stroke-width', '1')
-        .attr('opacity', '0.75');
+      d3.selectAll('.arc-' + i + '-over')
+        .attr('fill', color(i))
+        .attr('fill-opacity', 0.3);
     }
    
     /**
@@ -182,9 +196,9 @@
      * @return none
      */
     function unhighlightSlice(i) {
-      var like_color = d3.selectAll('.color_' + color(i));
-      like_color.attr('stroke-width', '0')
-        .attr('opacity', 1);
+      d3.selectAll('.arc-' + i + '-over')
+        .attr('fill', 'white')
+        .attr('fill-opacity', 0);
     }
 
     function percent(i) {
