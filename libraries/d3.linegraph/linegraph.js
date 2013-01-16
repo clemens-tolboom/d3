@@ -1,3 +1,8 @@
+/**
+ * @file
+ * D3 Line Graph library js file.
+ */
+
 (function($) {
 
   Drupal.d3.linegraph = function (select, settings) {
@@ -43,21 +48,35 @@
         .x(function(d,i) { return x(i); })
         .y(function(d) { return y(d.y); }));
 
+    // Creates a container for each group of circles.
     var circles = graph.selectAll("g.circles")
         .data(data)
       .enter().append("g")
+        .attr('class', function(d,i) { console.log(d); return 'circle-group-' + i; })
         .attr("fill", function(d, i) { return d3.rgb(z(i)); });
 
-    circles.selectAll("circle")
+    // Container for each circle to have a rollover circle, and a main one.
+    var circle = circles.selectAll('g')
         .data(function(d) { return d; })
-      .enter().append("circle")
-        .attr("class", "area")
+      .enter().append('g');
+
+    // This is the rollover circle that is not visible on init.
+    circle.append('circle')
+        .attr('class', function(d,i) { return 'circle-over circle-' + i + '-over'; }) 
+        .attr("cx", function(d,i) { return x(i); })
+        .attr("cy", function(d,i) { return y(d.y); })
+        .attr('fill-opacity', 0.2)
+        .attr("r", 6);
+
+    circle.append('circle')
+        .attr("class", function(d,i) { return 'circle circle-' + i; })
         .attr("cx", function(d,i) { return x(i); })
         .attr("cy", function(d,i) { return y(d.y); })
         .attr("r", 6)
         .on("mouseover", function(d, i) { 
-          var circle = d3.select(this)
-            .attr('fill-opacity', '0.50');
+          // Find the sibling circle, expand radius.
+          var circle = d3.select(this.parentNode).select('.circle-over');
+          circle.attr('r', 9);
 
           var tip = graph.append('g')
             .attr('class', 'tooltip')
@@ -66,8 +85,9 @@
           d3.tooltip(tip, d.y);
         })
         .on("mouseout", function(d,i) { 
-          d3.select(this)
-            .attr('fill-opacity', '1.0');
+          // Find the sibling circle and reset its radius.
+          d3.select(this.parentNode).select('.circle-over')
+            .attr('r', 6);
 
           graph.select('.tooltip').remove();
         });
@@ -84,15 +104,6 @@
         .attr("text-anchor", "end")
         .attr('dy', '.71em')
         .attr('transform', function(d) { return "rotate(-40)"; });
-
-//    xTicks.selectAll('text')
-//        .data(function(d,i) { return d3.splitString(labels[i],10)})
-//      .enter().append("text")
-//        .attr("dy", ".71em")
-//        .attr("y", function(d,i) {  return i*20} )
-//        .attr("text-anchor", "end")
-//        .attr('transform', function(d) { return "rotate(-25)"; })
-//        .text(function(d,i){ return d; });
 
     /* Y AXIS */
     var rule = graph.selectAll("g.rule")
@@ -128,7 +139,15 @@
       .attr("width", 16)
       .attr("height", 16)
       .attr("y", 0)
-      .attr("x", 0);
+      .attr("x", 0)
+      .on('mouseover', function(d,i) {
+        var group = graph.select('g.circle-group-' + i);
+        group.selectAll('g').select('.circle-over').attr('r', 9);
+      })
+      .on('mouseout', function(d,i) {
+        var group = graph.select('g.circle-group-' + i);
+        group.selectAll('g').select('.circle-over').attr('r', 6);
+      });
 
     var labelWrapper = keys.append("g");
 
