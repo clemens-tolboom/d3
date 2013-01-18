@@ -1,11 +1,13 @@
-// Notes on data formatting:
-// legend: array of text values. Length is number of data types.
-// rows: array of arrays. One array for each point of data
-// arrays have format array(label, data1, data2, data3, ...)
-
 /**
  * @file
  * Adds a function to generate a column chart to the `Drupal` object.
+ */
+
+/** 
+ * Notes on data formatting:
+ * legend: array of text values. Length is number of data types.
+ * rows: array of arrays. One array for each point of data
+ * arrays have format array(label, data1, data2, data3, ...)
  */
 
 (function($) {

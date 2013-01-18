@@ -1,4 +1,9 @@
 /**
+ * @file
+ * Javascript file that initiates the d3 and behaviors globals.
+ */
+
+/**
  * Integrates D3 library and functionality with D7 core javascript
  */
 (function($) {
