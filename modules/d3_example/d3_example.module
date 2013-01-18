@@ -20,7 +20,7 @@ function d3_example_menu() {
 
   $items['examples/column'] = array(
     'title' => 'Column chart example',
-    'description' => 'Uses d3 module to create a sample bar chart',
+    'description' => 'Uses d3 module to create a sample column chart',
     'access callback' => TRUE,
     'page callback' => 'd3_example_column',
   );
@@ -157,11 +157,11 @@ function d3_example_pie() {
   $chart = array(
     'id' => 'visualization',
     'type' => 'PieChart',
-    'wedges' => array(
-      array('label' =>'Group 1', 'value' => 500),
-      array('label' =>'People of a different Group', 'value' => 50),
-      array('label' => 'Statewide Champions', 'value' => 100),
-      array('label' => 'Leaders Trained', 'value' => 160),
+    'rows' => array(
+      array('Group 1', 500),
+      array('People of a different Group', 50),
+      array('Statewide Champions', 100),
+      array('Leaders Trained', 160),
     ),
   );
   return d3_draw($chart);

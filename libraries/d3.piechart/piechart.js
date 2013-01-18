@@ -15,9 +15,9 @@
 
   Drupal.d3.piechart = function (select, settings) {
 
-    var wedges = settings.wedges,
+    var wedges = settings.rows,
       // Each wedge has a label and a value
-      key = wedges.map(function(d) { return d.label; }),
+      key = wedges.map(function(d) { return String(d[0]); }),
       // Padding is top, right, bottom, left as in css padding.
       p = [10, 50, 15, 15],
       w = 700,
@@ -26,7 +26,7 @@
       radius = Math.min((w - p[1] - p[3]), (h - p[0] - p[2])) / 2,
       // Maximum width and height for the legend minus padding.
       legend = {w: (w - p[3] - p[1] - radius * 2), h: h - p[0] - p[2]},
-      color = d3.scale.ordinal().range(["blue", "red", "orange", "green"]),
+      color = d3.scale.ordinal().range(['blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid']),
       div = (settings.id) ? settings.id : 'visualization';
 
 
@@ -56,7 +56,7 @@
 
     var pie = d3.layout.pie()
         .sort(null)
-        .value(function(d) { return d.value; });
+        .value(function(d) { return Number(d[1]); });
 
     /* MAIN CHART */
     var g = graph.selectAll(".arc")
@@ -153,7 +153,7 @@
         // now move to the actual x and y of the bar within that group 
         .attr('transform', function(d) { return 'translate(' + circle.centroid(data[i]) + ')'; });
 
-      d3.tooltip(tooltip, wedges[i].value);
+      d3.tooltip(tooltip, Number(wedges[i][1]));
     }
 
     /**
@@ -202,8 +202,8 @@
     }
 
     function percent(i) {
-      var sum = d3.sum(wedges.map(function(d,i) { return d.value; }));
-      var val = wedges[i].value;
+      var sum = d3.sum(wedges.map(function(d,i) { return Number(d[1]); }));
+      var val = Number(wedges[i][1]);
 
       return ((val / sum) ? Math.round((val / sum) * 100) : 0) + '%';
     }
