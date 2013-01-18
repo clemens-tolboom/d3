@@ -1,4 +1,4 @@
-name = pie Chart
+name = Pie Chart
 files[js][] = piechart.js
 files[css][] = piechart.css
 version = 0.1
