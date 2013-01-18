@@ -16,35 +16,44 @@ function d3_views_views_api() {
 function d3_views_theme() {
 
   return array(
-    'views_ui_style_d3_plugin_table' => array(
+    'views_ui_style_d3_options_form' => array(
       'render element' => 'form',
     ),  
   );
 
 }
 
+function d3_preprocess_views_ui_style_d3_options_form(&$vars) {
+  drupal_add_css(drupal_get_path('module', 'd3_views') . '/css/views_ui_style_options_form.css');
+}
+
 /**
  * Theme the form for the table style plugin
  */
-function theme_views_ui_style_d3_plugin_table($variables) {
+function theme_views_ui_style_d3_options_form($variables) {
   $form = $variables['form'];
 
   $output = drupal_render($form['library']);
 
   $header = array(
     t('Field'),
+    t('Display'),
+    t('Aggregation'),
     t('Data type'),
   );
   $rows = array();
   foreach (element_children($form['columns']) as $id) {
     $row = array();
     $row[] = drupal_render($form['columns'][$id]['name']);
+    $row[] = drupal_render($form['columns'][$id]['display']);
+    $row[] = drupal_render($form['columns'][$id]['aggregate']);
     $row[] = drupal_render($form['columns'][$id]['type']);
     
     $rows[] = $row;
   }
 
-  $output .= theme('table', array('header' => $header, 'rows' => $rows));
+  $output .= '<fieldset><legend>Data</legend>' . theme('table', array('header' => $header, 'rows' => $rows)) . '</fieldset>';
+
   $output .= drupal_render_children($form);
   return $output;
 }

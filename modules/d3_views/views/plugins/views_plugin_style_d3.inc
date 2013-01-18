@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Contains the d3 style plugin.
@@ -27,21 +26,28 @@ class views_plugin_style_d3 extends views_plugin_style {
   }
 
   /**
-   * Render the given style.
+   * Options form for the given style.
    */
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
-    // We temporarily disable grouping on all libraries. 
+    // We temporarily disable grouping on all libraries.
     // @TODO In future releases there should be an option to group
     // if the visualization's data requires it.
     $form['grouping']['#access'] = FALSE;
 
     $form['library'] = array(
       '#title' => 'Library',
+      '#description' => t('Select which d3 library you would like to use with this view. Note: For instructions on how to incorporate your custom library with views, see the README.txt.'),
       '#type' => 'select',
       '#options' => $this->get_libraries(),
       '#default_value' => $this->options['library'],
+    );
+
+    $form['show_table'] = array(
+      '#title' => 'Show Debug Table',
+      '#type' => 'checkbox',
+      '#default_value' => $this->options['show_table'],
     );
 
     $handlers = $this->display->handler->get_handlers('field');
@@ -54,10 +60,14 @@ class views_plugin_style_d3 extends views_plugin_style {
 
     // Note: views UI registers this theme handler on our behalf. Your module
     // will have to register your theme handlers if you do stuff like this.
-    $form['#theme'] = 'views_ui_style_d3_plugin_table';
+    $form['#theme'] = 'views_ui_style_d3_options_form';
 
     // Create an array of allowed columns from the data we know:
     $field_names = $this->display->handler->get_field_labels();
+
+    $form['columns'] = array(
+      '#tree' => TRUE,
+    );
 
 
     foreach ($field_names as $field => $display) {
@@ -70,6 +80,18 @@ class views_plugin_style_d3 extends views_plugin_style {
         '#markup' => $field_names[$field],
       );
 
+      $form['columns'][$field]['display'] = array(
+        '#type' => 'select',
+        '#options' => array('label' => 'Label', 'display' => 'Display Value'),
+        '#default_value' => isset($this->options['columns'][$field]['display']) ? $this->options['columns'][$field]['display'] : '',
+      );
+
+      $form['columns'][$field]['aggregate'] = array(
+        '#type' => 'select',
+        '#options' => array('_none' => 'None', 'count' => 'Count', 'count_dist' => 'Count DISTINCT', 'sum' => 'Sum', 'avg' => 'Average', 'min' => 'Minimum', 'max' => 'Maximum'),
+        '#default_value' => isset($this->options['columns'][$field]['aggregate']) ? $this->options['columns'][$field]['aggregate'] : '',
+      );
+
       $form['columns'][$field]['type'] = array(
         '#type' => 'select',
         '#options' => array('_none' => 'None', 'column' => 'Column', 'row' => 'Row label'),
@@ -78,12 +100,20 @@ class views_plugin_style_d3 extends views_plugin_style {
 
     }
 
+    // @TODO: It would be nice if this was triggered by ajax.
+    $form['demo'] = array(
+      '#type' => 'markup',
+      '#prefix' => '<div id="demo">',
+      '#markup' => '',
+      '#suffix' => '</div>',
+    );
+
   }
- 
+
   /**
    * Normalize a list of columns to use for the visualization
    * as well as a list of row labels.
-   * 
+   *
    * In the example of a column chart, the column will be the
    * name in the legend, and represent the meaning of the value of
    * each bar. The row label will represent the X-Axis labels.
@@ -95,46 +125,56 @@ class views_plugin_style_d3 extends views_plugin_style {
    *      An array of label keys
    */
   function columns() {
-    static $columns;
-
-    if ($columns) {
-      return $columns;
-    }
-
-    // Allows chaining. Ex: $this->columns()->labels;
-    $columns = new stdClass();
-    $columns->columns = array();
-    $columns->labels = array();
-
     // We want to cross reference with the fields associated with the view
     // and maintain that order as well.
-    $fields = $this->display->handler->get_handlers('field');
-    $field_labels = $this->display->handler->get_field_labels();
-    foreach ($fields as $field) {
-      // Get the machine name for the field.
-      $field = $field->field;
-
-      // If this isn't a valid column for whatever reason, do not use it.
-      if (!isset($this->options['columns'][$field]['type'])) {
-        continue;
+    $fields = $this->display->handler->get_option('fields');
+   
+    $columns = array();
+    foreach ($this->options['columns'] as $column => $info) {
+      if ($info['type'] == 'column') {
+        $columns[$column] = $info;
       }
-
-      $settings = $this->options['columns'][$field];
-      // We only allow for these two scenarios in case the user
-      // has chose another setting for this particular field on the options
-      // form.
-      if ($settings['type'] == 'column') {
-        $columns->columns[$field] = $field_labels[$field]; 
-      }
-      if ($settings['type'] == 'row') {
-        $columns->labels[$field] = $field_labels[$field]; 
-      }
-
     }
-
     return $columns;
   }
 
+  function row_labels() {
+    // We want to cross reference with the fields associated with the view
+    // and maintain that order as well.
+    $fields = $this->display->handler->get_option('fields');
+   
+    $row_labels = array();
+    foreach ($this->options['columns'] as $column => $info) {
+      if ($info['type'] == 'row') {
+        $row_labels[$column] = $info;
+      }
+    }
+    return $row_labels;
+  }
+
+  function count(&$data, $field) {
+    $counted = array();
+
+    foreach ($data as $index => $row) {
+      $counted[$row[$field]][] = $row;
+    }
+
+    $data = array();
+    foreach ($counted as $index => $row) {
+      $values = $row[0];
+      $values[$field] = count($row);
+
+      $data[] = $values;
+    }
+  }
+  function aggregate($data) {
+    foreach ($this->columns() as $column => $info) {
+      if (isset($info['aggregate']) && $info['aggregate'] != '_none') {
+        $this->{$info['aggregate']}($data, $column);
+      }
+    }
+    return $data;
+  }
   /**
    * Render the display in this style.
    */
@@ -151,11 +191,41 @@ class views_plugin_style_d3 extends views_plugin_style {
       TRUE
     );
 
-    // Since grouping is disabled right now we can just fetch the 
+    // Since grouping is disabled right now we can just fetch the
     // rows directly
-    $set = array_shift($sets);
-    $rows = $this->preprocess($set['rows']);
+//    $set = array_shift($sets);
+//    $rows = $this->preprocess($set['rows']);
 
+//aoeuhtnsaoeuhtnsaoeuhtns
+    /**
+     * @TODO:
+     *   - get rid of grouping
+     *   - pass over to theme function, and preprocess
+     *   - render the fields according to the options
+     */
+    $output = '';
+    foreach ($sets as $set) {
+    $row = reset($set['rows']);
+      // Render as a record set.
+//      if ($this->uses_row_plugin()) {
+//        foreach ($set['rows'] as $index => $row) {
+//          $this->view->row_index = $index;
+//          $set['rows'][$index] = $this->row_plugin->render($row);
+//        }
+//      }
+
+      $output .= theme($this->theme_functions(),
+        array(
+          'view' => $this->view,
+          'options' => $this->options,
+          'rows' => $set['rows'],
+          'title' => $set['group'])
+      );
+    }
+    unset($this->view->row_index);
+    return $output;
+
+  ///aoeuhtnsaoeuhtnsaoeu
     return $this->draw($rows);
   }
 
@@ -174,9 +244,15 @@ class views_plugin_style_d3 extends views_plugin_style {
     return $value;
   }
 
+  /**
+   * Prepare raw view result for d3
+   *
+   * @return array()
+   *   Multi-dimensional array of rows and fields.
+   */
   function preprocess($rows) {
     $data = array();
-    // an array for the grouped fields displays to show on the visualization 
+    // an array for the grouped fields displays to show on the visualization
     // for each of the fields associated with this view
     foreach ($rows as $index => $row) {
       // Get the display name for the row label fields that were
@@ -192,21 +268,29 @@ class views_plugin_style_d3 extends views_plugin_style {
       // Now add each column to the rest of the data row.
       foreach ($this->columns()->columns as $column => $name) {
         $value = $this->get_field_value($index, $column);
-        $data_row[$column] = isset($data[$column]) ? ($data[$column] + $value[0]['value']) : $value[0]['value'];
+//        $data_row[$column] = isset($data[$column]) ? ($data[$column] + $value[0]['value']) : $value[0]['value'];
       }
       $data[] = array_values($data_row);
     }
 
-    return $data; 
+    return $data;
   }
 
+  /**
+   * Prepare library and d3_draw array.
+   *
+   * @param array $rows
+   *   Result array.
+   *
+   * @see preprocess()
+   * @see render()
+   */
   function draw($rows) {
-    $columns = $this->columns()->columns;
-    $field_labels = $this->display->handler->get_field_labels();
-      
+    $columns = $this->columns();
+
     $legend = array();
-    foreach ($columns as $column => $settings) {
-      $legend[] = $field_labels[$column];
+    foreach ($columns as $column => $info) {
+      $legend[] = $this->view->field[$column]->label();
     }
 
     $this->get_libraries();
@@ -221,6 +305,16 @@ class views_plugin_style_d3 extends views_plugin_style {
     return d3_draw($chart);
   }
 
+  /**
+   * Get the rendered label for a particular field / row
+   *
+   * @param int $index
+   *   Row index, defined by view result.
+   * @param string $field
+   *   Field name.
+   * @return string
+   *   Safe label.
+   */
   function get_field_label($index, $field) {
     $group_content = '';
 
@@ -355,6 +449,12 @@ class views_plugin_style_d3 extends views_plugin_style {
     return $sets;
   }
 
+  /**
+   * Local function to get all libraries that are compatible with views.
+   *
+   * @return array
+   *   Array of library info keyed by library machine name.
+   */
   function get_libraries() {
     $views_api_version = views_api_version();
     // List all d3 libraries.
