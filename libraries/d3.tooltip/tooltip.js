@@ -34,6 +34,14 @@
       // Tip offset point, from the very tip to the middle of the square
       tipO: 22,
     };
+    
+    var svg = tipjar.node();
+    while (svg.tagName != "svg" && svg.parentNode) svg = svg.parentNode;
+    w = parseInt(svg.attributes.width.textContent, 10);
+    h = parseInt(svg.attributes.height.textContent, 10);
+    
+    //Precomputing the x and y attributes is difficult. Need to find a new way.
+    //console.log(tipjar.node().getBBox());
 
     // Create a container for the paths specifically
     var img = tipjar.append("g");
