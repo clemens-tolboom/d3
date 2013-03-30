@@ -305,25 +305,9 @@ function d3_graphapi_settings_form($values) {
     '#default_value' => variable_get('d3_graphapi_default_library', 'forcedirected'),
   );
 
-  $form[$engine]['submit'] = array(
-    '#type' => 'submit',
-    '#value' => 'Save',
-    '#submit' => array('d3_graphapi_settings_form_submit'),
-  );
-
   return $form;
 
 }
-
-/**
- * Submit handler for the graphapi settings form.
- *
- * @see d3_graphapi_settings_form()
- */
-function d3_graphapi_settings_form_submit(&$form, &$form_state) {
-  variable_set('d3_graphapi_default_library', $form_state['values']['library']);
-}
-
 
 /**
  * Converts $graph data array two arrays for links and nodes.
