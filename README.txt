@@ -4,6 +4,10 @@ USING THE API
 =============
 - Download d3 library and install it into your libraries module.
   Latest version can be found at https://github.com/mbostock/d3/wiki
+  To download the library using the provided example makefile and drush, use:
+  drush make --no-core d3.make.example
+  If you're creating a distribution, simply copy the example makefile
+  into your own makefile.
 - Enable d3 module and dependencies
 - If you're not familiar with the API, see the d3_examples module
   for various code examples of the d3 API.
