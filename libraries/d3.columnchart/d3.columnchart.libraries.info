@@ -1,0 +1,8 @@
+name = Column Chart 
+files[js][] = columnchart.js
+files[css][] = columnchart.css
+version = 0.1
+dependencies[] = d3
+dependencies[] = d3.extend
+dependencies[] = d3.tooltip
+views = 3.0

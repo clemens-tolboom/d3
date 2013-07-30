@@ -1,0 +1,270 @@
+<?php
+
+/**
+ * Implementation of hook_menu().
+ */
+function d3_example_menu() {
+
+  $items['examples'] = array(
+  'title' => 'D3 examples',
+  'description' => t('Different visualization examples using d3.'),
+  'page callback' => 'd3_example_linegraph',
+  'access callback' => TRUE,
+  );
+
+  $items['examples/line'] = array(
+  'title' => 'Line graph',
+  'description' => 'Uses d3 module to create a sample line graph',
+  'access callback' => TRUE,
+  'page callback' => 'd3_example_linegraph',
+  'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  if (module_exists('graphapi')) {
+  $items['examples/forcedirected'] = array(
+    'title' => 'Force directed graph',
+    'description' => 'Uses d3 module to create a sample force directed graph',
+    'access callback' => TRUE,
+    'page callback' => 'd3_example_forcedirected',
+    'type' => MENU_LOCAL_TASK,
+  );
+  }
+
+  $items['examples/column'] = array(
+  'title' => 'Column chart',
+  'description' => 'Uses d3 module to create a sample column chart',
+  'access callback' => TRUE,
+  'page callback' => 'd3_example_column',
+  'type' => MENU_LOCAL_TASK,
+  );
+  
+  $items['examples/bar'] = array(
+  'title' => 'Bar chart',
+  'description' => 'Uses d3 module to create a sample bar chart',
+  'access callback' => TRUE,
+  'page callback' => 'd3_example_bar',
+  'type' => MENU_LOCAL_TASK,
+  );
+  
+  $items['examples/donut'] = array(
+  'title' => 'Donut chart',
+  'description' => 'Uses d3 module to create a sample donut chart.',
+  'access callback' => TRUE,
+  'page callback' => 'd3_example_donut',
+  'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['examples/pie'] = array(
+  'title' => 'Pie chart',
+  'description' => 'Uses d3 module to create a sample pie chart.',
+   'access callback' => TRUE,
+   'page callback' => 'd3_example_pie',
+   'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['examples/bubble'] = array(
+  'title' => 'Bubble chart',
+  'description' => 'Uses d3 module to create a sample bubble chart.',
+  'access callback' => TRUE,
+  'page callback' => 'd3_example_bubble',
+  'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+function d3_example_linegraph() {
+
+  $chart = array(
+  'id' => 'visualization',
+  'type' => 'LineGraph',
+  'legend' => array(
+    'Development',
+    'QA',
+    'Strategy',
+    'Design'
+  ),
+  'rows' => array(
+    array('1st Quarter 2011',10,20,26,35),
+    array('2nd Quarter 2011',20,26,27,37),
+    array('3rd Quarter 2011',10,50,28,50),
+    array('4th Quarter 2011',15,76,49,51),
+    array('1st Quarter 2012',20,100,50,52),
+  ),
+  'height' => 400,
+  'width' => 700,
+		'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
+  'showlegend' => 1,
+  'colour' => 'white',
+  );
+
+  return d3_draw($chart);
+}
+
+function d3_example_forcedirected() {
+
+  $graph = graphapi_new_graph();
+
+  graphapi_add_link($graph, "graphapi_relation", "relation");
+  graphapi_add_link($graph, "graphapi_relation", "graphapi");
+  graphapi_add_link($graph, "graphapi", "views");
+  graphapi_add_link($graph, "php", "graphapi");
+  graphapi_add_link($graph, "graphapi", "graph_phyz");
+  graphapi_add_link($graph, "graphapi", "graphviz_filter");
+  graphapi_add_link($graph, "graphapi", "thejit");
+  graphapi_add_link($graph, "thejit", "thejit_spacetree");
+  graphapi_add_link($graph, "thejit", "thejit_forcedirected");
+  graphapi_add_link($graph, "thejit", "thejit_x");
+
+  $options = array(
+  'width' => 400,
+  'height' => 400,
+  'item-width' => 45,
+  'engine' => 'd3'
+  );
+  return theme('graphapi_dispatch', array('graph' => $graph, 'config' => $options));
+}
+
+function d3_example_column() {
+
+  $chart = array(
+  'id' => 'visualization',
+  'type' => 'ColumnChart',
+  'legend' => array(
+    'Development',
+    'QA',
+    'Strategy',
+    'Design'
+  ),
+  'rows' => array(
+    array('1st Quarter 2011',10,20,26,35),
+    array('2nd Quarter 2011',20,26,27,37),
+    array('3rd Quarter 2011',10,50,28,50),
+    array('4th Quarter 2011',15,76,49,51),
+    array('1st Quarter 2012',20,100,50,52),
+    array('2nd Quarter 2012',4,1,110,40),
+  ),
+  'height' => 400,
+  'width' => 700,
+		'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
+  'showlegend' => 1,
+  'colour' => 'white',
+  );
+
+  return d3_draw($chart);
+}
+
+/**
+ * Generates a random example bar graph.
+ * @return string
+ *   HTML for the page content.
+ */
+function d3_example_bar() {
+
+  // Temporary data until I get randomization working.
+  $chart = array(
+  'id' => 'visualization',
+  'type' => 'BarChart',
+  'legend' => array(
+    'Development',
+    'QA',
+    'Strategy',
+    'Design'
+  ),
+  'rows' => array(
+    array('Stupidly long label length that no one ever uses'),
+    array('2nd Quarter 2011'),
+    array('3rd Quarter 2011'),
+    array('4th Quarter 2011'),
+    array('1st Quarter 2012'),
+    array('2012'),
+  ),
+  'height' => 400,
+  'width' => 700,
+		'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
+  'showlegend' => 1,
+  'colour' => 'white',
+  );
+
+  for ($i = 0; $i < count($chart['rows']); $i++) {
+  for ($j = 0; $j < 4; $j++) {
+    array_push($chart['rows'][$i], rand(1, 70) * rand(1, 70) );
+  }
+  }
+
+  return d3_draw($chart);
+}
+
+/**
+ * Generates a random pie chart example
+ * @return HTML for the page.
+ */
+function d3_example_pie() {
+  $chart = array(
+  'id' => 'visualization',
+  'type' => 'PieChart',
+  'rows' => array(
+    array('Development', 500),
+    array('Strategy', 50),
+    array('Design', 100),
+    array('QA', 160),
+  ),
+  'height' => 400,
+  'width' => 700,
+		'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
+  'showlegend' => 1,
+  'colour' => 'white',
+  );
+  return d3_draw($chart);
+}
+
+/**
+ * Generates a random donut chart example
+ * @return HTML for the page.
+ */
+function d3_example_donut() {
+  $chart = array(
+      'id' => 'donut',
+      'type' => 'DonutChart',
+      'rows' => array(
+          array('Development', 500),
+          array('Strategy', 50),
+          array('Design', 100),
+          array('QA', 160),
+          ),
+      'height' => 400,
+      'width' => 700,
+      'title' => 'Hello World',
+      'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
+      'showlegend' => 1,
+      'colour' => 'white',
+  );
+  return d3_draw($chart);
+}
+
+/**
+ * Generates a random bubble chart example
+ * @return HTML for the page.
+ */
+function d3_example_bubble() {
+  $data = array(
+      "name"=> "children",
+      "children"=>array(
+          array("name" => "AgglomerativeCluster", "size" => 3938),
+          array("name" => "CommunityStructure", "size" => 3812),
+          array("name" => "HierarchicalCluster", "size" => 6714),
+          array("name" => "MergeEdge", "size" => 743),
+          ),
+      );
+  $chart = array(
+      'id' => 'visualization',
+      'type' => 'BubbleChart',
+      'rows' => drupal_json_encode($data),
+      'width' => 400,
+//      'title' => 'Hello World',
+//      'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
+//      'showlegend' => 1,
+      'colour' => 'white',
+  );
+  return d3_draw($chart);
+}

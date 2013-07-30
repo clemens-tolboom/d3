@@ -1,0 +1,4 @@
+name = Module Dependencies Graph 
+files[js][] = module_dependencies.js
+version = 0.1
+dependencies[] = d3

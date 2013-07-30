@@ -1,0 +1,4 @@
+name = Force Directed Graph
+files[js][] = forcedirected.js
+version = 0.1
+dependencies[] = d3

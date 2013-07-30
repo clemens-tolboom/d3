@@ -1,0 +1,4 @@
+name = D3 extensions
+files[js][] = d3.extend.js
+version = 0.1
+depedencies[] = d3
