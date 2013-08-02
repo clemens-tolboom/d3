@@ -93,7 +93,7 @@ function d3_example_linegraph() {
   ),
   'height' => 400,
   'width' => 700,
-		'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
+	'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
   'showlegend' => 1,
   'colour' => 'white',
   );
@@ -146,7 +146,7 @@ function d3_example_column() {
   ),
   'height' => 400,
   'width' => 700,
-		'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
+	'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
   'showlegend' => 1,
   'colour' => 'white',
   );
@@ -181,7 +181,7 @@ function d3_example_bar() {
   ),
   'height' => 400,
   'width' => 700,
-		'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
+	'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
   'showlegend' => 1,
   'colour' => 'white',
   );
@@ -211,7 +211,7 @@ function d3_example_pie() {
   ),
   'height' => 400,
   'width' => 700,
-		'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
+	'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
   'showlegend' => 1,
   'colour' => 'white',
   );
@@ -247,6 +247,7 @@ function d3_example_donut() {
  * @return HTML for the page.
  */
 function d3_example_bubble() {
+
   $data = array(
       "name"=> "children",
       "children"=>array(
@@ -256,14 +257,15 @@ function d3_example_bubble() {
           array("name" => "MergeEdge", "size" => 743),
           ),
       );
+
+  $rows =drupal_json_encode($data);
+
   $chart = array(
       'id' => 'visualization',
       'type' => 'BubbleChart',
-      'rows' => drupal_json_encode($data),
+      'rows' => $rows,
       'width' => 400,
-//      'title' => 'Hello World',
-//      'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
-//      'showlegend' => 1,
+      'series_colours' => array('blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid'),
       'colour' => 'white',
   );
   return d3_draw($chart);
