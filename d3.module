@@ -1,8 +1,7 @@
 <?php
 /**
- * @author Alan Sherry http://drupal.org/user/941916
  * @file
- * D3 API for creating visualizations with d3, and d3 libraries.
+ * D3 module file for creating visualizations with d3.js.
  *
  * Sponsored by http://www.freeflowdigital.com
  */
@@ -68,7 +67,7 @@ function d3_libraries_info_file_paths() {
 
   $paths = array();
   // output an array of paths to check for
-  foreach ($libraries as $id => $path) {
+  foreach ($libraries as $path) {
     $paths[] = $path;
   }
 
@@ -210,7 +209,7 @@ function d3_draw($vis) {
   $library_name = 'd3.' . $type;
 
   // check for library instance / definition
-  if ($library = libraries_detect($library_name)) {
+  if (libraries_detect($library_name)) {
     $vis['library'] = libraries_load($library_name);
     $vis['library']['library name'] = str_replace('.', '_', $library_name);
     // Enforce lowercase change.
@@ -294,7 +293,7 @@ function d3_graphapi_settings_form($values) {
   );
 
   $options = array();
-  foreach (d3_get_libraries() as $name => $library) {
+  foreach (d3_get_libraries() as $library) {
     $options[$library['js callback']] = $library['name'];
   }
   $form[$engine]['library'] = array(
