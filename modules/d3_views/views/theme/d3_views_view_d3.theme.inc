@@ -1,10 +1,16 @@
 <?php
+/**
+ * @file
+ * Preprocessing for d3 views handler.
+ */
 
-
-function template_preprocess_views_view_d3(&$vars) {
+/**
+ * Template helper for theme_views_view_d3.
+ */
+function template_preprocess_d3_views_view_d3(&$vars) {
   $view    = $vars['view'];
   $options = $view->style_plugin->options;
-  // Instance of views_plugin_style_d3.
+  // Instance of d3_views_plugin_style_d3.
   $handler = $view->style_plugin;
   // All fields for this view.
   $fields  = &$view->field;

@@ -5,4 +5,4 @@ package = Visualization
 dependencies[] = views
 dependencies[] = d3
 
-files[] = views/plugins/views_plugin_style_d3.inc
+files[] = views/plugins/d3_views_plugin_style_d3.inc

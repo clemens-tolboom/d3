@@ -9,7 +9,7 @@
  *
  * @ingroup views_style_plugins
  */
-class views_plugin_style_d3 extends views_plugin_style {
+class d3_views_plugin_style_d3 extends views_plugin_style {
 
   protected $libraries = array();
 
