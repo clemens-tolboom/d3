@@ -12,11 +12,11 @@
 function d3_theme() {
 
   foreach (libraries_info() as $path => $library) {
-    // call this function to get all fields - i.e. library path
+    // Call this function to get all fields - i.e. library path.
     $library = libraries_load($path);
-    // if a template was specified in the .info file or hook_libraries_info
+    // If a template was specified in the .info file or hook_libraries_info.
     if (isset($library['template'])) {
-      // change d3.[library name] to d3_[library name] for a theme key
+      // Change d3.[library name] to d3_[library name] for a theme key.
       $theme_key = str_replace('.', '_', $library['machine name']);
       $themes[$theme_key] = array(
         'template' => $library['template'],
@@ -41,17 +41,17 @@ function d3_theme() {
 }
 
 /**
- * Implements hook_preprocess_[hook].
+ * Implements hook_preprocess_d3() for d3.tpl.php.
  */
 function d3_preprocess_d3(&$variables) {
 
-  // let drupal_attributes render this
+  // Let drupal_attributes render this.
   $variables['classes_array'][] = $variables['type'];
   $variables['attributes_array']['id'] = array($variables['vis_id']);
 
   $library = isset($variables['library']) ? $variables['library'] : FALSE;
 
-  // let's look for a template file in the library definition
+  // Let's look for a template file in the library definition.
   if (isset($library['template'])) {
     $variables['theme_hook_suggestion'] = isset($library['library name']) ? $library['library name'] : str_replace('.', '_', $library['machine name']);
   }
@@ -62,19 +62,19 @@ function d3_preprocess_d3(&$variables) {
  */
 function d3_libraries_info_file_paths() {
 
-  // get all library directories
+  // Get all library directories.
   $libraries = libraries_get_libraries();
 
   $paths = array();
-  // output an array of paths to check for
+  // Output an array of paths to check for.
   foreach ($libraries as $path) {
     $paths[] = $path;
   }
 
-  // load the directory where the d3 example libraries are
+  // Load the directory where the d3 example libraries are.
   $example_path = drupal_get_path('module', 'd3') . '/libraries/';
 
-  // add these to the search directories for libraries
+  // Add these to the search directories for libraries.
   foreach (d3_default_libraries() as $example) {
     $paths[] = $example_path . $example;
   }
@@ -192,12 +192,13 @@ function d3_default_libraries() {
  *
  * @param array $vis
  *   The chart data
+ *
  * @return string
  *   Rendered chart html
  */
 function d3_draw($vis) {
 
-  // type is required for correct processing
+  // Type is required for correct processing.
   $type = isset($vis['type']) ? strtolower($vis['type']) : NULL;
 
   if (!$type) {
@@ -205,19 +206,19 @@ function d3_draw($vis) {
     return '';
   }
 
-  // form library name - convention is going to be d3.[library]
+  // Form library name - convention is going to be d3.[library].
   $library_name = 'd3.' . $type;
 
-  // check for library instance / definition
+  // Check for library instance / definition.
   if (libraries_detect($library_name)) {
     $vis['library'] = libraries_load($library_name);
     $vis['library']['library name'] = str_replace('.', '_', $library_name);
     // Enforce lowercase change.
     $vis['type'] = $type;
-    // store as vis_id because key ['id'] will get overridden
+    // Store as vis_id because key ['id'] will get overridden.
     $vis['vis_id'] = $vis['id'];
 
-    // now add to the behaviors to execute on page load
+    // Now add to the behaviors to execute on page load.
     $js = array(
       'd3' => array(
         'inventory' => array($vis['id'] => $vis),
@@ -225,14 +226,14 @@ function d3_draw($vis) {
     );
     drupal_add_js($js, 'setting');
 
-    // renders the html - .tpl.php if specified or default d3.tpl.php
+    // Renders the html - .tpl.php if specified or default d3.tpl.php.
     return theme('d3', $vis);
 
   }
   else {
     drupal_set_message(t('Invalid chart type %type and/or library %library_name is not installed', array(
       '%type' => $type,
-      '%library_name' => $library_name
+      '%library_name' => $library_name,
     )));
     return '';
   }
@@ -327,7 +328,7 @@ function _d3_graphapi_format_graph_data($graph) {
     $index++;
   }
 
-  // add in edges
+  // Add in edges.
   foreach ($graph as $id => $node) {
     $index = $indices[$id];
     $data['nodes'][$index] = array(
@@ -343,7 +344,8 @@ function _d3_graphapi_format_graph_data($graph) {
           'data' => isset($edge_data['data']) ? $edge_data['data'] : array(),
           'source' => $index,
           'target' => $indices[$edge],
-          'value' => $value, //TODO hard coded should be dynamic
+          // TODO: This is hard coded, it could be dynamic.
+          'value' => $value,
         );
       }
     }

@@ -14,8 +14,7 @@ function d3_requirements($phase) {
     return $requirements;
   }
 
-  // If this is run during install we'll need to use get_t instead of
-  // just t
+  // If this is run during install we'll need to use get_t instead of just t.
   $t = get_t();
   // If the library directory exists.
   if ($path = libraries_get_path('d3')) {
@@ -41,7 +40,7 @@ function d3_requirements($phase) {
       // installing the library.
       $requirements['d3'] = array(
         'title' => $t('D3'),
-        'value' => t('The d3 library has not been installed properly. Check your folder
+        'value' => $t('The d3 library has not been installed properly. Check your folder
             !path and ensure your d3.[version].js file is located inside that
             folder, and not in a subfolder.', array('!path' => $path)),
         'severity' => REQUIREMENT_ERROR,
@@ -55,10 +54,10 @@ function d3_requirements($phase) {
     // and tried installing D3 yet.
     $requirements['d3'] = array(
       'title' => $t('D3'),
-      'value' => t('D3 library was not found. !download the library and place all javascript
+      'value' => $t('D3 library was not found. !download the library and place all javascript
           files in a folder entitled "d3" located in your default libraries folder.
           E.g. If you download version 3 minified, it would be located
-          in path/to/libraries/d3/d3.v3.min.js.', array('!download' => l(t('Download'), 'http://d3js.org/'))
+          in path/to/libraries/d3/d3.v3.min.js.', array('!download' => l($t('Download'), 'http://d3js.org/'))
       ),
       'severity' => REQUIREMENT_ERROR,
     );
