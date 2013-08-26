@@ -9,7 +9,6 @@
  */
 function template_preprocess_d3_views_view_d3(&$vars) {
   $view    = $vars['view'];
-  $options = $view->style_plugin->options;
   // Instance of d3_views_plugin_style_d3.
   $handler = $view->style_plugin;
   // All fields for this view.
@@ -34,7 +33,7 @@ function template_preprocess_d3_views_view_d3(&$vars) {
   $vars['header'] = array('');
   $vars['header_classes'] = array();
 
-  foreach ($result as $index => $row) {
+  foreach ($result as $row) {
     $data = array();
     // Loop through view labels because they'll need to be the first
     // element in each array.

@@ -7,7 +7,7 @@
  * Integrates D3 library and functionality with D7 core javascript
  */
 (function($) {
-  Drupal.d3 = { 
+  Drupal.d3 = {
 
     draw : function(element, settings) {
       // type of chart
@@ -30,7 +30,7 @@ Drupal.behaviors.d3 = {
       // for each of the visualizations set in inventory
       for (var visId in settings.d3.inventory) {
         // if the container for this visualization exists on the page
-        if (jQuery('#'+visId, context).length) {
+        if (jQuery('#' + visId, context).length) {
           Drupal.d3.draw(visId, settings.d3.inventory[visId]);
         }
       }

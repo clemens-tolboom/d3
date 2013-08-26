@@ -70,7 +70,6 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
     );
 
     foreach ($field_names as $field => $display) {
-      $safe = str_replace(array('][', '_', ' '), '-', $field);
 
       // Markup for the field name.
       $form['columns'][$field]['name'] = array(
@@ -163,7 +162,7 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
   function count(&$data, $field) {
     $counted = array();
 
-    foreach ($data as $index => $row) {
+    foreach ($data as $row) {
       $counted[$row[$field]][] = $row;
     }
 
@@ -208,8 +207,6 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
      */
     $output = '';
     foreach ($sets as $set) {
-      $row = reset($set['rows']);
-
       $output .= theme($this->theme_functions(),
           array(
             'view' => $this->view,

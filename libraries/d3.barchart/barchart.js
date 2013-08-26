@@ -22,7 +22,7 @@
       // - Convert all values to numeric numbers.
       // - Merge all sub-arrays into one flat array.
       // - Return the highest (numeric) value from flat array.
-      max = d3.max(d3.merge(settings.rows).map(function(d) { return +d; })),
+      max = d3.max(d3.merge(settings.rows).map(function(d) { return + d; })),
       // Padding is top, right, bottom, left as in css padding.
       p = [10, 50, 30, 50],
       w = 800,
@@ -57,7 +57,7 @@
       .enter().append("g")
       .attr("class","ticks")
       .attr('width', 50)
-      .attr('transform', function(d,i) { return 'translate(-4,'+(y(i) + (barGroupWidth/2))+')'});
+      .attr('transform', function(d,i) { return 'translate(-4,' + (y(i) + (barGroupWidth / 2)) + ')'});
 
     // This adds the labels to the ytick groups.
     yTicks.append('text')
@@ -103,13 +103,7 @@
       .attr('fill', function(d,i) { return d3.rgb(z(i)); })
       .attr("class", function(d,i) {return "color_" + z(i); })
       .on('mouseover', function(d, i) { showToolTip(d, i, this); })
-      .on('mouseout', function(d, i) { hideToolTip(d, i, this); })
-      ;
-      //.transition()
-      //.duration(function(d) { return 750 * x(d) / x(max); })
-      //.ease('linear')
-      //.attr('width', function(d) { return x(d); });
-
+      .on('mouseout', function(d, i) { hideToolTip(d, i, this); });
 
     /* LEGEND */
     var legend = svg.append("g")
