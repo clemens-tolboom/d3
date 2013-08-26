@@ -71,8 +71,6 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
 
     foreach ($field_names as $field => $display) {
       $safe = str_replace(array('][', '_', ' '), '-', $field);
-      // The $id of the column for dependency checking.
-      $id = 'edit-style-options-columns-' . $safe;
 
       // Markup for the field name.
       $form['columns'][$field]['name'] = array(
@@ -170,7 +168,7 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
     }
 
     $data = array();
-    foreach ($counted as $index => $row) {
+    foreach ($counted as $row) {
       $values = $row[0];
       $values[$field] = count($row);
 
@@ -202,12 +200,6 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
       TRUE
     );
 
-    // Since grouping is disabled right now we can just fetch the
-    // rows directly
-//    $set = array_shift($sets);
-//    $rows = $this->preprocess($set['rows']);
-
-//aoeuhtnsaoeuhtnsaoeuhtns
     /**
      * @TODO:
      *   - get rid of grouping
@@ -216,28 +208,18 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
      */
     $output = '';
     foreach ($sets as $set) {
-    $row = reset($set['rows']);
-      // Render as a record set.
-//      if ($this->uses_row_plugin()) {
-//        foreach ($set['rows'] as $index => $row) {
-//          $this->view->row_index = $index;
-//          $set['rows'][$index] = $this->row_plugin->render($row);
-//        }
-//      }
+      $row = reset($set['rows']);
 
       $output .= theme($this->theme_functions(),
-        array(
-          'view' => $this->view,
-          'options' => $this->options,
-          'rows' => $set['rows'],
-          'title' => $set['group'])
-      );
+          array(
+            'view' => $this->view,
+            'options' => $this->options,
+            'rows' => $set['rows'],
+            'title' => $set['group'])
+          );
     }
     unset($this->view->row_index);
     return $output;
-
-  ///aoeuhtnsaoeuhtnsaoeu
-    return $this->draw($rows);
   }
 
   /**
@@ -276,11 +258,6 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
       // Create a new array for this data row, and start with the labels
       // joined by a ' ' if necessary.
       $data_row = array(join(' ', $labels));
-      // Now add each column to the rest of the data row.
-      foreach ($this->columns()->columns as $column => $name) {
-        $value = $this->get_field_value($index, $column);
-//        $data_row[$column] = isset($data[$column]) ? ($data[$column] + $value[0]['value']) : $value[0]['value'];
-      }
       $data[] = array_values($data_row);
     }
 
