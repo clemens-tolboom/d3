@@ -108,12 +108,12 @@
     /* LEGEND */
     var legend = svg.append("g")
       .attr("class", "legend")
-      .attr("transform", "translate("+(chart.w+20)+","+0+")");
+      .attr("transform", "translate(" + (chart.w + 20) + "," + 0 + ")");
 
     var keys = legend.selectAll("g")
       .data(key)
       .enter().append("g")
-      .attr("transform", function(d,i) { return "translate(0,"+d3.tileText(d,15)+")"});
+      .attr("transform", function(d,i) { return "translate(0," + d3.tileText(d,15) + ")"});
 
     keys.append("rect")
       .attr("fill", function(d,i) { return d3.rgb(z(i)); })
@@ -132,9 +132,8 @@
       .enter().append("text")
       .text(function(d,i) { return d})
       .attr("x", 20)
-      .attr("y", function(d,i) {  return i*20} )
+      .attr("y", function(d,i) {  return i * 20})
       .attr("dy", "1em");
- 
 
     function showToolTip(d, i, obj) {
       // change color and style of the bar
@@ -150,9 +149,8 @@
         // move to the x position of the parent group
         .attr('transform', function(data) { return group.attr('transform'); })
           .append('g')
-        // now move to the actual x and y of the bar within that group 
-        .attr('transform', function(data) { return 'translate(' + x(d) +',' +  (Number(bar.attr('y')) + barWidth / 2) + ')'; });
-
+        // now move to the actual x and y of the bar within that group
+        .attr('transform', function(data) { return 'translate(' + x(d) + ',' + (Number(bar.attr('y')) + barWidth / 2) + ')'; });
 
       d3.tooltip(tooltip, d);
     }

@@ -4,10 +4,10 @@ svg {
 .rule {
   shape-rendering: crispEdges;
 }
-.rule text { 
+.rule text {
   font-size: 15px;
 }
-.ticks { 
+.ticks {
   font-size: 15px;
 }
 path.line {
@@ -16,7 +16,7 @@ path.line {
 .y.axis line {
   stroke: #000000;
   fill: none;
-} 
+}
 .legend text {
   font-size: 14px;
 }
