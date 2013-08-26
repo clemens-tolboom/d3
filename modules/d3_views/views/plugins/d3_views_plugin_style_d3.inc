@@ -14,7 +14,7 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
   protected $libraries = array();
 
   /**
-   * Set default options
+   * Set default options.
    */
   function option_definition() {
     $options = parent::option_definition();
@@ -69,32 +69,46 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
       '#tree' => TRUE,
     );
 
-
     foreach ($field_names as $field => $display) {
       $safe = str_replace(array('][', '_', ' '), '-', $field);
-      // the $id of the column for dependency checking.
+      // The $id of the column for dependency checking.
       $id = 'edit-style-options-columns-' . $safe;
 
-      // markup for the field name
+      // Markup for the field name.
       $form['columns'][$field]['name'] = array(
         '#markup' => $field_names[$field],
       );
 
       $form['columns'][$field]['display'] = array(
         '#type' => 'select',
-        '#options' => array('label' => 'Label', 'display' => 'Display Value'),
+        '#options' => array(
+          'label' => t('Label'),
+          'display' => t('Display Value'),
+        ),
         '#default_value' => isset($this->options['columns'][$field]['display']) ? $this->options['columns'][$field]['display'] : '',
       );
 
       $form['columns'][$field]['aggregate'] = array(
         '#type' => 'select',
-        '#options' => array('_none' => 'None', 'count' => 'Count', 'count_dist' => 'Count DISTINCT', 'sum' => 'Sum', 'avg' => 'Average', 'min' => 'Minimum', 'max' => 'Maximum'),
+        '#options' => array(
+          '_none' => t('None'),
+          'count' => t('Count'),
+          'count_dist' => t('Count DISTINCT'),
+          'sum' => t('Sum'),
+          'avg' => t('Average'),
+          'min' => t('Minimum'),
+          'max' => t('Maximum'),
+        ),
         '#default_value' => isset($this->options['columns'][$field]['aggregate']) ? $this->options['columns'][$field]['aggregate'] : '',
       );
 
       $form['columns'][$field]['type'] = array(
         '#type' => 'select',
-        '#options' => array('_none' => 'None', 'column' => 'Column', 'row' => 'Row label'),
+        '#options' => array(
+          '_none' => t('None'),
+          'column' => t('Column'),
+          'row' => t('Row label'),
+        ),
         '#default_value' => isset($this->options['columns'][$field]['type']) ? $this->options['columns'][$field]['type'] : '',
       );
 
@@ -111,24 +125,21 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
   }
 
   /**
-   * Normalize a list of columns to use for the visualization
-   * as well as a list of row labels.
+   * Normalize a list of columns and row labels to use for the visualization.
    *
    * In the example of a column chart, the column will be the
    * name in the legend, and represent the meaning of the value of
    * each bar. The row label will represent the X-Axis labels.
    *
    * @return object
-   *    ->columns = array()
-   *      An array of column keys
-   *    ->labels = array()
-   *      An array of label keys
+   *   ->columns = array()
+   *     An array of column keys
+   *   ->labels = array()
+   *     An array of label keys
    */
   function columns() {
     // We want to cross reference with the fields associated with the view
     // and maintain that order as well.
-    $fields = $this->display->handler->get_option('fields');
-   
     $columns = array();
     foreach ($this->options['columns'] as $column => $info) {
       if ($info['type'] == 'column') {
@@ -138,11 +149,10 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
     return $columns;
   }
 
+  /**
+   * Cross reference with fields associated with the view and maintain order.
+   */
   function row_labels() {
-    // We want to cross reference with the fields associated with the view
-    // and maintain that order as well.
-    $fields = $this->display->handler->get_option('fields');
-   
     $row_labels = array();
     foreach ($this->options['columns'] as $column => $info) {
       if ($info['type'] == 'row') {
@@ -175,6 +185,7 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
     }
     return $data;
   }
+
   /**
    * Render the display in this style.
    */
