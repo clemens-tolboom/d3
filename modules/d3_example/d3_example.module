@@ -1,13 +1,16 @@
 <?php
+/**
+ * D3 Example module file.
+ */
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function d3_example_menu() {
 
   $items['examples'] = array(
     'title' => 'D3 examples',
-    'description' => t('Different visualization examples using d3.'),
+    'description' => 'Different visualization examples using d3.',
     'page callback' => 'd3_example_linegraph',
     'access callback' => TRUE,
   );
@@ -37,7 +40,7 @@ function d3_example_menu() {
     'page callback' => 'd3_example_column',
     'type' => MENU_LOCAL_TASK,
   );
-  
+
   $items['examples/bar'] = array(
     'title' => 'Bar chart',
     'description' => 'Uses d3 module to create a sample bar chart',
@@ -45,7 +48,7 @@ function d3_example_menu() {
     'page callback' => 'd3_example_bar',
     'type' => MENU_LOCAL_TASK,
   );
-  
+
   $items['examples/pie'] = array(
     'title' => 'Pie chart',
     'description' => 'Uses d3 module to create a sample pie chart.',
@@ -57,6 +60,10 @@ function d3_example_menu() {
   return $items;
 }
 
+/**
+ * An example function to show how to output a linegraph
+ * using the d3 API directly.
+ */
 function d3_example_linegraph() {
 
   $chart = array(
@@ -64,9 +71,9 @@ function d3_example_linegraph() {
     'type' => 'LineGraph',
     'legend' => array(
       'Development',
-      'QA',  
+      'QA',
       'Strategy',
-      'Design'
+      'Design',
     ),
     'rows' => array(
       array('1st Quarter 2011',10,20,26,35),
@@ -80,6 +87,9 @@ function d3_example_linegraph() {
   return d3_draw($chart);
 }
 
+/**
+ * Demonstrates a force directed graph using the Graph API module.
+ */
 function d3_example_forcedirected() {
 
   $graph = graphapi_new_graph();
@@ -104,6 +114,9 @@ function d3_example_forcedirected() {
   return theme('graphapi_dispatch', array('graph' => $graph, 'config' => $options));
 }
 
+/**
+ * Demonstrates a column chart using the D3 API directly.
+ */
 function d3_example_column() {
 
   $chart = array(
@@ -111,9 +124,9 @@ function d3_example_column() {
     'type' => 'ColumnChart',
     'legend' => array(
       'Development',
-      'QA',  
+      'QA',
       'Strategy',
-      'Design'
+      'Design',
     ),
     'rows' => array(
       array('1st Quarter 2011',10,20,26,35),
@@ -141,9 +154,9 @@ function d3_example_bar() {
     'type' => 'BarChart',
     'legend' => array(
       'Development',
-      'QA',  
+      'QA',
       'Strategy',
-      'Design'
+      'Design',
     ),
     'rows' => array(
       array('Stupidly long label length that no one ever uses'),

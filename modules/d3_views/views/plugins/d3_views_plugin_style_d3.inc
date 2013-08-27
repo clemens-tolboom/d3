@@ -416,7 +416,7 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
           // group we just determined.
           $set = &$set[$grouping]['rows'];
         }
-        // Add the row to the hierarchically positioned 
+        // Add the row to the hierarchically positioned
         // row set we just determined.
         $set[$index] = $row;
       }

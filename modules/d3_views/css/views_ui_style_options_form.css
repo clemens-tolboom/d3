@@ -1,3 +1,9 @@
-#edit-options .form-item div.description { font-size:11px; }
-#edit-options fieldset { padding:0; border:none; }
-#edit-options legend { font: bold 13px; }
+#edit-options .form-item div.description { 
+  font-size:11px;
+}
+#edit-options fieldset {
+  padding:0; border:none;
+}
+#edit-options legend {
+  font: bold 13px;
+}
