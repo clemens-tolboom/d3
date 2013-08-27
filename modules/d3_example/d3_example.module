@@ -1,5 +1,6 @@
 <?php
 /**
+ * @file
  * D3 Example module file.
  */
 
@@ -61,8 +62,7 @@ function d3_example_menu() {
 }
 
 /**
- * An example function to show how to output a linegraph
- * using the d3 API directly.
+ * Demonstrates how to create a line graph using the D3 API directly.
  */
 function d3_example_linegraph() {
 
@@ -109,7 +109,7 @@ function d3_example_forcedirected() {
     'width' => 400,
     'height' => 400,
     'item-width' => 45,
-    'engine' => 'd3'
+    'engine' => 'd3',
   );
   return theme('graphapi_dispatch', array('graph' => $graph, 'config' => $options));
 }
@@ -170,7 +170,7 @@ function d3_example_bar() {
 
   for ($i = 0; $i < count($chart['rows']); $i++) {
     for ($j = 0; $j < 4; $j++) {
-      array_push($chart['rows'][$i], rand(1, 70) * rand(1, 70) );
+      array_push($chart['rows'][$i], rand(1, 70) * rand(1, 70));
     }
   }
 
@@ -178,8 +178,10 @@ function d3_example_bar() {
 }
 
 /**
- * Generates a random pie chart example
- * @return HTML for the page.
+ * Generates a random pie chart example.
+ *
+ * @return string
+ *   HTML for the page.
  */
 function d3_example_pie() {
   $chart = array(

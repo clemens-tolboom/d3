@@ -3,4 +3,3 @@ description = Several functions that outline the different uses of the D3 API
 core = 7.x
 package = Visualization
 dependencies[] = d3
-
