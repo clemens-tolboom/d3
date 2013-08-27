@@ -22,7 +22,7 @@ function template_preprocess_d3_views_view_d3(&$vars) {
   // everything.
   // Taken from template_preprocess_views_view_table().
   $result = $handler->render_fields($vars['rows']);
- 
+
   // Aggregate settings from $handler->options_form()
   $result = $handler->aggregate($result);
 
@@ -38,7 +38,7 @@ function template_preprocess_d3_views_view_d3(&$vars) {
     // Loop through view labels because they'll need to be the first
     // element in each array.
     foreach ($row_labels as $field => $info) {
-      $vars['header_classes'][$field] = ''; 
+      $vars['header_classes'][$field] = '';
       if ($fields[$field]->options['element_default_classes']) {
         $vars['header_classes'][$field] .= "views-field views-field-" . drupal_clean_css_identifier($field);
       }
@@ -49,7 +49,7 @@ function template_preprocess_d3_views_view_d3(&$vars) {
 
     // The columns will follow.
     foreach ($columns as $field => $info) {
-      $vars['header_classes'][$field] = ''; 
+      $vars['header_classes'][$field] = '';
       if ($fields[$field]->options['element_default_classes']) {
         $vars['header_classes'][$field] .= "views-field views-field-" . drupal_clean_css_identifier($field);
       }
@@ -70,4 +70,3 @@ function template_preprocess_d3_views_view_d3(&$vars) {
 
   $vars['show_table'] = isset($handler->options['show_table']) ? $handler->options['show_table'] : FALSE;
 }
-

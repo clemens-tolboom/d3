@@ -159,6 +159,9 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
     return $row_labels;
   }
 
+  /**
+   * Helper function to return a count for each result row.
+   */
   function count(&$data, $field) {
     $counted = array();
 
@@ -174,6 +177,10 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
       $data[] = $values;
     }
   }
+
+  /**
+   * Wrapper function to determine the method to use, and execute it.
+   */
   function aggregate($data) {
     foreach ($this->columns() as $column => $info) {
       if (isset($info['aggregate']) && $info['aggregate'] != '_none') {
@@ -199,12 +206,10 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
       TRUE
     );
 
-    /**
-     * @TODO:
-     *   - get rid of grouping
-     *   - pass over to theme function, and preprocess
-     *   - render the fields according to the options
-     */
+    // @TODO:
+    // - get rid of grouping
+    // - pass over to theme function, and preprocess
+    // - render the fields according to the options
     $output = '';
     foreach ($sets as $set) {
       $output .= theme($this->theme_functions(),
@@ -220,13 +225,13 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
   }
 
   /**
-  * Get the raw field value.
-  *
-  * @param $index
-  *   The index count of the row.
-  * @param $field
-  *    The id of the field.
-  */
+   * Get the raw field value.
+   *
+   * @param int $index
+   *   The index count of the row.
+   * @param string $field
+   *   The id of the field.
+   */
   function get_field_value($index, $field) {
     $this->view->row_index = $index;
     $value = $this->view->field[$field]->get_value($this->view->result[$index]);
@@ -235,15 +240,15 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
   }
 
   /**
-   * Prepare raw view result for d3
+   * Prepare raw view result for d3.
    *
    * @return array()
    *   Multi-dimensional array of rows and fields.
    */
   function preprocess($rows) {
     $data = array();
-    // an array for the grouped fields displays to show on the visualization
-    // for each of the fields associated with this view
+    // An array for the grouped fields displays to show on the visualization
+    // for each of the fields associated with this view.
     foreach ($rows as $index => $row) {
       // Get the display name for the row label fields that were
       // chosen on the options page.
@@ -254,7 +259,7 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
 
       // Create a new array for this data row, and start with the labels
       // joined by a ' ' if necessary.
-      $data_row = array(join(' ', $labels));
+      $data_row = array(implode(' ', $labels));
       $data[] = array_values($data_row);
     }
 
@@ -291,12 +296,13 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
   }
 
   /**
-   * Get the rendered label for a particular field / row
+   * Get the rendered label for a particular field / row.
    *
    * @param int $index
    *   Row index, defined by view result.
    * @param string $field
    *   Field name.
+   *
    * @return string
    *   Safe label.
    */
@@ -316,41 +322,42 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
   /**
    * Group records as needed for rendering.
    *
-   * @param $records
+   * @param array $records
    *   An array of records from the view to group.
-   * @param $groupings
+   * @param array $groupings
    *   An array of grouping instructions on which fields to group. If empty, the
    *   result set will be given a single group with an empty string as a label.
-   * @param $group_rendered
+   * @param bool $group_rendered
    *   Boolean value whether to use the rendered or the raw field value for
    *   grouping. If set to NULL the return is structured as before
    *   Views 7.x-3.0-rc2. After Views 7.x-3.0 this boolean is only used if
    *   $groupings is an old-style string or if the rendered option is missing
    *   for a grouping instruction.
-   * @return
+   *
+   * @return array
    *   The grouped record set.
    *   A nested set structure is generated if multiple grouping fields are used.
    *
-   *   @code
-   *   array(
-   *     'grouping_field_1:grouping_1' => array(
-   *       'group' => 'grouping_field_1:content_1',
-   *       'rows' => array(
-   *         'grouping_field_2:grouping_a' => array(
-   *           'group' => 'grouping_field_2:content_a',
-   *           'rows' => array(
-   *             $row_index_1 => $row_1,
-   *             $row_index_2 => $row_2,
-   *             // ...
-   *           )
-   *         ),
+   * @code
+   * array(
+   *   'grouping_field_1:grouping_1' => array(
+   *     'group' => 'grouping_field_1:content_1',
+   *     'rows' => array(
+   *       'grouping_field_2:grouping_a' => array(
+   *         'group' => 'grouping_field_2:content_a',
+   *         'rows' => array(
+   *           $row_index_1 => $row_1,
+   *           $row_index_2 => $row_2,
+   *           // ...
+   *         )
    *       ),
    *     ),
-   *     'grouping_field_1:grouping_2' => array(
-   *       // ...
-   *     ),
-   *   )
-   *   @endcode
+   *   ),
+   *   'grouping_field_1:grouping_2' => array(
+   *     // ...
+   *   ),
+   * )
+   * @endcode
    */
   function render_grouping($records, $groupings = array(), $group_rendered = NULL) {
     // This is for backward compability, when $groupings was a string containing
@@ -360,7 +367,7 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
       $groupings = array(array('field' => $groupings, 'rendered' => $rendered));
     }
 
-    // Make sure fields are rendered
+    // Make sure fields are rendered.
     $this->render_fields($this->view->result);
     $sets = array();
     if ($groupings) {
@@ -392,7 +399,7 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
             else {
               $grouping = $this->get_field_value($index, $field);
               // Not all field handlers return a scalar value,
-              // e.g. views_handler_field_field.
+              // for example: views_handler_field_field.
               if (!is_scalar($grouping)) {
                 $grouping = md5(serialize($grouping));
               }
@@ -405,10 +412,12 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
             $set[$grouping]['rows'] = array();
           }
 
-          // Move the set reference into the row set of the group we just determined.
+          // Move the set reference into the row set of the
+          // group we just determined.
           $set = &$set[$grouping]['rows'];
         }
-        // Add the row to the hierarchically positioned row set we just determined.
+        // Add the row to the hierarchically positioned 
+        // row set we just determined.
         $set[$index] = $row;
       }
     }
