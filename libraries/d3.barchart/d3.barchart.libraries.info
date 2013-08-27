@@ -1,4 +1,5 @@
 name = Bar Chart
+description = D3 example Bar Chart library
 files[js][] = barchart.js
 files[css][] = barchart.css
 version = 0.1

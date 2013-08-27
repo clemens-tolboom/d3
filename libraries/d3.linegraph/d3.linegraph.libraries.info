@@ -1,4 +1,5 @@
 name = Line Graph
+description = D3 example Line Graph library
 files[js][] = linegraph.js
 files[css][] = linegraph.css
 version = 0.1

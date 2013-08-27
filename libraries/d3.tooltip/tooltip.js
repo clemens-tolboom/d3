@@ -67,12 +67,15 @@
             case 0:
               return 1;
               break;
+
             case 1:
               return 0.6;
               break;
+
             case 2:
               return 0.4;
               break;
+
           }
         })
         .attr('stroke-width', function(d) { return (x == 0) ? 1 : 0; });

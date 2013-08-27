@@ -1,4 +1,5 @@
 name = Tooltip
+description = Tooltip functionality for any graph object.
 files[js][] = tooltip.js
 dependencies[] = d3
 version = 0.1

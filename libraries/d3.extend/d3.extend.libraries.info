@@ -1,4 +1,5 @@
 name = D3 extensions
+description = Common functionality for example libraries
 files[js][] = d3.extend.js
 version = 0.1
 depedencies[] = d3

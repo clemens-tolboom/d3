@@ -164,14 +164,14 @@
       graph.select('g.tooltip').remove();
 
     }
-    
+
     function highlightBars(d, i) {
       var like_color = d3.selectAll('.color_' + z(i));
       like_color.attr('stroke', '#ccc')
         .attr('stroke-width', '1')
         .attr('opacity', '0.75');
     }
-    
+
     function unhighlightBars(d, i) {
       var like_color = d3.selectAll('.color_' + z(i));
       like_color.attr('stroke-width', '0')

@@ -1,4 +1,5 @@
 name = Pie Chart
+description = D3 example Pie Chart library
 files[js][] = piechart.js
 files[css][] = piechart.css
 version = 0.1
