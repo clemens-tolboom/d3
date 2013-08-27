@@ -49,7 +49,7 @@
       .data(rows)
       .enter().append("g")
       .attr("class","ticks")
-      .attr('transform', function(d,i) { return 'translate('+( x(i) + (barGroupWidth/2))+','+(chart.h)+')'})
+      .attr('transform', function(d,i) { return 'translate(' + (x(i) + (barGroupWidth/2)) + ',' + (chart.h) + ')'})
       .append("text")
       .attr("dy", ".71em")
       .attr("text-anchor", "end")
@@ -92,16 +92,15 @@
       .on('mouseover', function(d, i) { showToolTip(d, i, this); })
       .on('mouseout', function(d, i) { hideToolTip(d, i, this); });
 
-
     /* LEGEND */
     var legend = svg.append("g")
       .attr("class", "legend")
-      .attr("transform", "translate("+(chart.w+20)+","+0+")");
+      .attr("transform", "translate(" + (chart.w + 20) + "," + 0 + ")");
 
     var keys = legend.selectAll("g")
       .data(key)
       .enter().append("g")
-      .attr("transform", function(d,i) { return "translate(0,"+d3.tileText(d,15)+")"});
+      .attr("transform", function(d,i) { return "translate(0," + d3.tileText(d,15) + ")"});
 
     keys.append("rect")
       .attr("fill", function(d,i) { return d3.rgb(z(i)); })
@@ -117,12 +116,11 @@
       .enter().append("text")
       .text(function(d,i) { return d})
       .attr("x", 20)
-      .attr("y", function(d,i) {  return i*20} )
+      .attr("y", function(d,i) { return i * 20})
       .attr("dy", "1em");
- 
 
     function showToolTip(d, i, obj) {
-      // change color and style of the bar
+      // Change color and style of the bar.
       var bar = d3.select(obj);
       bar.attr('stroke', '#ccc')
         .attr('stroke-width', '1')
@@ -138,7 +136,6 @@
         // now move to the actual x and y of the bar within that group 
         .attr('transform', function(data) { return 'translate(' + (Number(bar.attr('x')) + barWidth) +',' + y(d) + ')'; });
 
-
       d3.tooltip(tooltip, d);
     }
 
@@ -149,9 +146,6 @@
         .attr('opacity', 1);
 
       graph.select('g.tooltip').remove();
-
     }
-
   }
-
 })(jQuery);
