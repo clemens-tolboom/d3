@@ -53,11 +53,11 @@
       img.append('path')
         .attr("d", function(d) { return "M0,0"
         + 'l' + tooltip.tipO+',-' + tooltip.tipL
-        + 'l' + ((tooltip.w/2) - tooltip.tipW) + ',0'
+        + 'l' + ((tooltip.w / 2) - tooltip.tipW) + ',0'
         + 'l0,-' + tooltip.h + ''
         + 'l-' + tooltip.w + ',0'
-        + 'l0, '+ tooltip.h
-        + 'l' + (tooltip.w/2) +',0'
+        + 'l0, ' + tooltip.h
+        + 'l' + (tooltip.w / 2) +',0'
         + "L0,0"; })
         .attr("fill", function(d) { return (x == 0) ? '#fff' : '#ccc'; })
         .attr('transform', function(d) { return 'translate(' + x + ',' + x + ')';  })

@@ -80,7 +80,7 @@
 
           var tip = graph.append('g')
             .attr('class', 'tooltip')
-            .attr('transform', function(d,i) { return 'translate('+ circle.attr('cx') + ',' + circle.attr('cy') + ')'});
+            .attr('transform', function(d,i) { return 'translate(' + circle.attr('cx') + ',' + circle.attr('cy') + ')'});
 
           d3.tooltip(tip, d.y);
         })
