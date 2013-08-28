@@ -29,7 +29,6 @@
       color = d3.scale.ordinal().range(['blue', 'red', 'orange', 'green', 'purple', 'lightblue', 'palevioletred', 'orangered', 'mediumpurple', 'pink', 'yellow', 'olive', 'mediumorchid']),
       div = (settings.id) ? settings.id : 'visualization';
 
-
     var svg = d3.select('#' + div).append("svg")
       .attr("width", w)
       .attr("height", h)
@@ -48,7 +47,7 @@
     var arc_effect = d3.svg.arc()
         .outerRadius(radius)
         .innerRadius(radius - 10);
-   
+
     // Main arc that will be visible at all time.
     var circle = d3.svg.arc()
         .outerRadius(radius - 10)
@@ -89,12 +88,12 @@
     /* LEGEND */
     var legend = svg.append("g")
       .attr("class", "legend")
-      .attr("transform", "translate("+ (radius * 2 + p[3]) +"," + p[0] + ")");
+      .attr("transform", "translate(" + (radius * 2 + p[3]) + "," + p[0] + ")");
 
     var keys = legend.selectAll("g")
       .data(key)
       .enter().append("g")
-      .attr("transform", function(d,i) { return "translate(0,"+d3.tileText(d,15)+")"});
+      .attr("transform", function(d,i) { return "translate(0," + d3.tileText(d,15) + ")"});
 
     keys.append("rect")
       .attr("fill", function(d,i) { return d3.rgb(color(i)); })
@@ -113,7 +112,7 @@
       .enter().append("text")
       .text(function(d,i) { return d})
       .attr("x", 20)
-      .attr("y", function(d,i) {  return i*20} )
+      .attr("y", function(d,i) { return i * 20})
       .attr("dy", "1em");
 
     /**
@@ -150,7 +149,7 @@
         .attr('class', 'tooltip')
         // move to the x position of the parent group
           .append('g')
-        // now move to the actual x and y of the bar within that group 
+        // now move to the actual x and y of the bar within that group
         .attr('transform', function(d) { return 'translate(' + circle.centroid(data[i]) + ')'; });
 
       d3.tooltip(tooltip, Number(wedges[i][1]));
@@ -187,7 +186,7 @@
         .attr('fill', color(i))
         .attr('fill-opacity', 0.3);
     }
-   
+
     /**
      * Revert slice back to init state.
      *

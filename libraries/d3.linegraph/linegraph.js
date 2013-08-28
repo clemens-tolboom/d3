@@ -33,7 +33,7 @@
     var data = (key.map(function(value,index) {
       return rows.map(function(d,i) {
         labels[i] = d[0];
-        return {x: d[0], y: +d[index+1]};
+        return {x: d[0], y: + d[index + 1]};
       });
     }));
 
@@ -62,7 +62,7 @@
 
     // This is the rollover circle that is not visible on init.
     circle.append('circle')
-        .attr('class', function(d,i) { return 'circle-over circle-' + i + '-over'; }) 
+        .attr('class', function(d,i) { return 'circle-over circle-' + i + '-over'; })
         .attr("cx", function(d,i) { return x(i); })
         .attr("cy", function(d,i) { return y(d.y); })
         .attr('fill-opacity', 0.2)
@@ -73,18 +73,18 @@
         .attr("cx", function(d,i) { return x(i); })
         .attr("cy", function(d,i) { return y(d.y); })
         .attr("r", 6)
-        .on("mouseover", function(d, i) { 
+        .on("mouseover", function(d, i) {
           // Find the sibling circle, expand radius.
           var circle = d3.select(this.parentNode).select('.circle-over');
           circle.attr('r', 9);
 
           var tip = graph.append('g')
             .attr('class', 'tooltip')
-            .attr('transform', function(d,i) { return 'translate('+ circle.attr('cx') +','+ circle.attr('cy') +')'; });
+            .attr('transform', function(d,i) { return 'translate('+ circle.attr('cx') + ',' + circle.attr('cy') + ')'});
 
           d3.tooltip(tip, d.y);
         })
-        .on("mouseout", function(d,i) { 
+        .on("mouseout", function(d,i) {
           // Find the sibling circle and reset its radius.
           d3.select(this.parentNode).select('.circle-over')
             .attr('r', 6);
@@ -97,7 +97,7 @@
         .data(x.ticks(rows.length - 1))
       .enter().append("g")
         .attr("class","ticks")
-        .attr('transform', function(d,i) { return 'translate('+x(d)+','+(chart.h)+')'});
+        .attr('transform', function(d,i) { return 'translate(' + x(d) + ',' + (chart.h) + ')'});
 
     xTicks.append('text')
         .text(function(d,i) { return labels[i]; })
@@ -127,12 +127,12 @@
     var legend = svg.append("g")
       .attr("class", "legend")
       .attr('width', legend.w)
-      .attr("transform", "translate("+(w - legend.w)+","+0+")");
+      .attr("transform", "translate(" + (w - legend.w) + "," + 0 + ")");
 
     var keys = legend.selectAll("g")
         .data(key)
       .enter().append("g")
-        .attr("transform", function(d,i) { return "translate(0,"+d3.tileText(d,15)+")"});
+        .attr("transform", function(d,i) { return "translate(0," + d3.tileText(d,15) + ")"});
 
     keys.append("rect")
       .attr("fill", function(d,i) { return d3.rgb(z(i)); })
@@ -156,14 +156,14 @@
       .enter().append("text")
         .text(function(d,i) { return d})
         .attr("x", 20)
-        .attr("y", function(d,i) {  return i*20} )
+        .attr("y", function(d,i) { return i * 20})
         .attr("dy", "1em");
 
     function maxValue(rows) {
       var data = jQuery.extend(true, [], rows);
       data = d3.merge(data);
       var max = d3.max(data.map(function(d) {
-        return +d;
+        return + d;
       }));
       return max;
     }

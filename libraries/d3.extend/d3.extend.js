@@ -10,25 +10,27 @@ d3.tileText = function(str, w) {
   this.y = (!this.y) ? 0 : this.y;
 
   var store = this.y;
-  this.y += d3.splitString(str, w).length*25;
+  this.y += d3.splitString(str, w).length * 25;
   return store;
 }
 /**
  * helper function to split a text string into an array based on a length
  */
-d3.splitString = function(str, w) { 
+d3.splitString = function(str, w) {
   var strArray = str.split(" ");
   var endArray = [];
   var pos = 0;
 
-  for(var i=0; i<strArray.length; i++) {
-    if(!endArray[pos])
+  for(var i = 0; i < strArray.length; i++) {
+    if (!endArray[pos]) {
       endArray[pos] = "";
+    }
 
-    if(endArray[pos].length + strArray[i].length + 1 <= w) {
+    if (endArray[pos].length + strArray[i].length + 1 <= w) {
       endArray[pos] = [endArray[pos],strArray[i]].join(" ");
-    } else {
-      pos++;	
+    }
+    else {
+      pos++;
       endArray[pos] = strArray[i];
     }
   }

@@ -82,10 +82,10 @@
     }
 
     var offset = (tooltip.w / 2) - (tooltip.tipO - tooltip.tipW);
-  
+
     var textbox = tipjar.append('g')
       .attr('class', 'text')
-      .attr('transform', function(d) { return 'translate(-' + offset + ',-'+ tooltip.h +')'; });
+      .attr('transform', function(d) { return 'translate(-' + offset + ',-' + tooltip.h + ')'});
 
     textbox.append('text')
       .text('Value:')

@@ -15,7 +15,7 @@
       // - Convert all values to numeric numbers.
       // - Merge all sub-arrays into one flat array.
       // - Return the highest (numeric) value from flat array.
-      max = d3.max(d3.merge(settings.rows).map(function(d) { return +d; })),
+      max = d3.max(d3.merge(settings.rows).map(function(d) { return + d; })),
       // Padding is top, right, bottom, left as in css padding.
       p = [20, 50, 30, 50],
       w = 800,
@@ -49,7 +49,7 @@
       .data(rows)
       .enter().append("g")
       .attr("class","ticks")
-      .attr('transform', function(d,i) { return 'translate(' + (x(i) + (barGroupWidth/2)) + ',' + (chart.h) + ')'})
+      .attr('transform', function(d,i) { return 'translate(' + (x(i) + (barGroupWidth / 2)) + ',' + (chart.h) + ')'})
       .append("text")
       .attr("dy", ".71em")
       .attr("text-anchor", "end")
@@ -133,8 +133,8 @@
         // move to the x position of the parent group
         .attr('transform', function(data) { return group.attr('transform'); })
           .append('g')
-        // now move to the actual x and y of the bar within that group 
-        .attr('transform', function(data) { return 'translate(' + (Number(bar.attr('x')) + barWidth) +',' + y(d) + ')'; });
+        // now move to the actual x and y of the bar within that group
+        .attr('transform', function(data) { return 'translate(' + (Number(bar.attr('x')) + barWidth) + ',' + y(d) + ')'; });
 
       d3.tooltip(tooltip, d);
     }
