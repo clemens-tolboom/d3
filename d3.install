@@ -65,3 +65,10 @@ function d3_requirements($phase) {
     return $requirements;
   }
 }
+
+/**
+ * Implements hook_uninstall().
+ */
+function d3_uninstall() {
+  variable_del('d3_graphapi_default_library');
+}
