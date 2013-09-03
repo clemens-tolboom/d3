@@ -86,10 +86,11 @@ function d3_libraries_info_file_paths() {
  * Implements hook_libraries_info_alter().
  */
 function d3_libraries_info_alter(&$libraries) {
-
+  // By default, the libraries module only checks the libraries folders.
+  // We need to add this module's libraries path to the library info.
   $path = drupal_get_path('module', 'd3') . '/libraries/';
-
   foreach (d3_default_libraries() as $library_name) {
+    // Change library path to path/to/module/d3/libraries
     $libraries[$library_name]['library path'] = $path . $library_name;
   }
 }
