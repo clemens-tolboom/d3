@@ -58,7 +58,7 @@ function d3_preprocess_d3(&$variables) {
 }
 
 /**
- * Implements hook_libraries_paths().
+ * Implements hook_libraries_info_file_paths().
  */
 function d3_libraries_info_file_paths() {
 
