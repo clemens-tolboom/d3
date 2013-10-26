@@ -2,4 +2,4 @@ name = Force Directed Graph
 description = D3 example Force Directed Graph library
 files[js][] = forcedirected.js
 version = 0.1
-dependencies[] = d3
+dependencies[] = d3.drupal

@@ -2,4 +2,4 @@ name = Module Dependencies Graph
 description = D3 Force Directed Graph example library for module dependencies
 files[js][] = module_dependencies.js
 version = 0.1
-dependencies[] = d3
+dependencies[] = d3.drupal
