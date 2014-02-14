@@ -184,10 +184,20 @@ class d3_views_plugin_style_d3 extends views_plugin_style {
   function aggregate($data) {
     foreach ($this->columns() as $column => $info) {
       if (isset($info['aggregate']) && $info['aggregate'] != '_none') {
+        if (method_exists($this, $info['aggregate'])) {
         $this->{$info['aggregate']}($data, $column);
+        }
+        else {
+          drupal_set_message(t('!method aggregation currently not supported', array('!method' => ucwords($info['aggregate']))), 'error');
+        }
       }
     }
     return $data;
+  }
+
+  function sum(&$data, $field) {
+   dsm($data); 
+   dsm($field);
   }
 
   /**
