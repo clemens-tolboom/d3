@@ -1,0 +1,5 @@
+name = [library name] 
+description = [library description]
+files[js][] = [machine name].js
+files[css][] = [machine name].css
+version = 0.1
