@@ -16,6 +16,7 @@ function d3_drush_command() {
       'name' => 'The human readable name of your d3 library.',
       'machine_name' => 'The machine name of your d3 library.',
     ),
+    'required-arguments' => 1,
     'options' => array(
       'name' => 'The human readable name of your d3 library.',
       'machine_name' => 'The machine name of your d3 library.',
@@ -29,7 +30,7 @@ function d3_drush_command() {
 /**
  * Create a d3 custom library from the template.
  */
-function drush_d3($name = NULL, $machine_name = NULL) {
+function drush_d3($machine_name, $name = NULL) {
   if (!isset($name)) {
     $name = drush_get_option('name');
   }
@@ -37,10 +38,6 @@ function drush_d3($name = NULL, $machine_name = NULL) {
   $description = drush_get_option('description');
   if (empty($description)) {
     $description = 'D3 visualization library';
-  }
-
-  if (!isset($machine_name)) {
-    $machine_name = drush_get_option('machine-name');
   }
 
   $library_path = 'sites/all/libraries';
