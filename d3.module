@@ -402,7 +402,7 @@ function d3_graphapi_settings_form($values) {
     '#description' => t('Use this d3 library as the default to render graphapi visualizations'),
     '#type' => 'select',
     '#options' => $options,
-    '#default_value' => $values['library'],
+    '#default_value' => isset($values['library']) ? $values['library'] : key($options),
   );
 
   return $form;
