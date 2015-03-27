@@ -96,12 +96,17 @@
       .style("stroke", function(d) { return d3.hsl(d.data.fill); })
       .style("stroke-width", 3);
 
-    node.append("svg:text")
-      .attr("class", "nodetext")
-      .attr("dx", 10)
-      .attr("dy", ".35em")
-      .attr('font-size', '10')
-      .text(function(d) { return d.name });
+    node
+      .append("svg:a")
+        .attr("xlink:href", function(d) {
+          return d.data.uri;
+        })
+      .append("svg:text")
+        .attr("class", "nodetext")
+        .attr("dx", 10)
+        .attr("dy", ".35em")
+        .attr('font-size', '10')
+        .text(function(d) { return d.name });
 
     force.on("tick", function() {
       link.attr("x1", function(d) { return d.source.x; })
