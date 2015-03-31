@@ -96,11 +96,22 @@
       .style("stroke", function(d) { return d3.hsl(d.data.fill); })
       .style("stroke-width", 3);
 
-    node
+    // filter on items that have and don't have an d.data.uri
+    var hasUri = function(d) { return d.data && d.data.uri && d.data.uri.length > 0;};
+    var noUri = function(d) { return !hasUri(d)};
+    node.filter(hasUri)
       .append("svg:a")
         .attr("xlink:href", function(d) {
           return d.data.uri;
         })
+      .append("svg:text")
+        .attr("class", "nodetext")
+        .attr("dx", 10)
+        .attr("dy", ".35em")
+        .attr('font-size', '10')
+        .text(function(d) { return d.name });
+
+    node.filter(noUri)
       .append("svg:text")
         .attr("class", "nodetext")
         .attr("dx", 10)
